@@ -20,7 +20,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         return PostResource::collection(
-            Post::where('user_id', $request->user()->id)->orderBy('created_at', 'desc')
+            Post::all()
         );
     }
 

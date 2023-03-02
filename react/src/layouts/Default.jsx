@@ -66,7 +66,7 @@ export default function Default() {
     return (
         <div className="font-lato">
             {/* Sidebar */}
-            <div className="fixed left-0 right-0 md:top-0 bottom-0 w-full md:w-[200px] p-5">
+            <div className="fixed left-0 right-0 md:top-0 bottom-0 w-full md:w-[200px] p-5 bg-white md:bg-none rounded-t-lg md:rounded-none">
                 {/* Logo */}
                 <img src={logo} alt="logo" className="md:block hidden mb-6"/>
                 {/* Nav */}
@@ -83,7 +83,7 @@ export default function Default() {
                                     })}
                                 >
                                     <span className="w-6 mx-auto md:mx-0 block md:w-5">{item.icon}</span>
-                                    <span className="sm:block hidden md:text-base text-xs">
+                                    <span className="text-sm md:text-base sm:block hidden">
                                         {item.name}
                                     </span>
                                 </NavLink>
@@ -93,7 +93,7 @@ export default function Default() {
                 </nav>
             </div>
             {/* Main Content */}
-            <div className="md:ml-[200px] p-4 md:px-0 md:pt-4 md:pr-4">
+            <div className="md:ml-[200px] p-4 md:px-0 md:pt-4 md:pr-4 text-base">
                 <header className="flex justify-between mb-4">
                     <div className="w-2/3 flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
                         <MagnifyingGlassIcon className="w-5 text-gray-400"/>
@@ -106,7 +106,9 @@ export default function Default() {
                     </div>
                     <div>user</div>
                 </header>
-                <Outlet />
+                <div className="pb-[200px] md:pb-0">
+                    <Outlet />
+                </div>
             </div>
 
         </div>

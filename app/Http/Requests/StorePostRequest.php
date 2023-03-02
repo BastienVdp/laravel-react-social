@@ -28,8 +28,9 @@ class StorePostRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
-            'content' => 'nullable',
+            'content' => 'required',
             'images' => 'array|nullable',
             'user_id' => 'exists:users,id'
         ];

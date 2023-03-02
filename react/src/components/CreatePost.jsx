@@ -8,7 +8,7 @@ export default function CreatePost() {
         content: '',
     })
     const [images, setImages] = useState([])
-
+    const [errors, setErrors] = useState([])
     const onSubmit = (e) => {
         e.preventDefault()
 
@@ -17,7 +17,10 @@ export default function CreatePost() {
             images: images
         })
         .then((res) => console.log(res))
-        .catch(e => console.log(e))
+        .catch(err => {
+            console.log(err, err.response);
+            // setErrors
+        })
     }
 
     const onImageChoose = (e) => {
@@ -39,8 +42,7 @@ export default function CreatePost() {
             }, error =>  console.error(error))
         }
     }
-
-    useEffect(() => console.log(images, 'images UPLOADED'), [images])
+    
     return (
         <div className="mb-6 bg-white p-4 rounded-2xl">
             <form onSubmit={onSubmit} encType="multipart/form-data">
@@ -68,7 +70,7 @@ export default function CreatePost() {
                             Photo
                         </button>
                     </div>
-                    <Button level="primary" />
+                    <Button level="primary">Post</Button>
                 </div>
             </form>
 
