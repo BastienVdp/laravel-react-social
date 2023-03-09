@@ -20,7 +20,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         return PostResource::collection(
-            Post::all()
+            Post::orderBy('created_at', 'DESC')->get()
         );
     }
 

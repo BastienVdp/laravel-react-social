@@ -6,6 +6,7 @@ const axiosClient = axios.create({
 })
 
 axiosClient.interceptors.request.use(config => {
+    // config.headers.post["Access-Control-Allow-Origin"] = "*"
     config.headers.Authorization = `Bearer ${localStorage.getItem('TOKEN')}`
     return config
 })

@@ -1,11 +1,6 @@
 import { createContext, useContext, useState } from "react"
 
-const StateContext = createContext({
-    currentUser: {},
-    userToken: null,
-    setCurrentUser: () => {},
-    setUserToken: () => {}
-})
+const StateContext = createContext({})
 
 const tmpPosts = [
     {
@@ -38,10 +33,19 @@ const tmpPosts = [
 ]
 
 export const ContextProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState({})
+    const [currentUser, _setCurrentUser] = useState(JSON.parse(localStorage.getItem('USER')) || {})
     const [userToken, _setUserToken] = useState(localStorage.getItem('TOKEN') || null)
     const [posts, setPosts] = useState(tmpPosts)
 
+    const setCurrentUser = (user) => {
+        console.log(user)
+        if(user) {
+            localStorage.setItem('USER', JSON.stringify(user))
+        } else {
+            localStorage.removeItem('USER')
+        }
+        _setCurrentUser(user)
+    }
 
     const setUserToken = (token) => {
         if(token) {

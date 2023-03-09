@@ -4,6 +4,7 @@ import logo from "../assets/logo.png"
 import { ArrowRightOnRectangleIcon, BellIcon, ChatBubbleLeftRightIcon, Cog8ToothIcon, GlobeAltIcon, MagnifyingGlassIcon, Square2StackIcon, UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios";
+import { useEffect } from 'react'
 
 const navigation = [
     {
@@ -21,18 +22,18 @@ const navigation = [
         name: 'Messages',
         icon: <ChatBubbleLeftRightIcon />,
     },
-    {
-        to: '/notification',
-        name: 'Notification',
-        icon: <BellIcon />,
-    },
+    // {
+    //     to: '/notification',
+    //     name: 'Notification',
+    //     icon: <BellIcon />,
+    // },
     {
         to: '/explore',
         name: 'Explore',
         icon: <GlobeAltIcon />,
     },
     {
-        to: '/profile',
+        to: '/me',
         name: 'Profil',
         icon: <UserIcon />,
     },
@@ -50,7 +51,7 @@ const navigation = [
 
 export default function Default() {
 
-    const { currentUser, userToken, setCurrentUser, setUserToken } = useStateContext()
+    const { userToken, setCurrentUser, setUserToken } = useStateContext()
 
     if(!userToken) return <Navigate to={'/login'} />
 
@@ -93,8 +94,8 @@ export default function Default() {
                 </nav>
             </div>
             {/* Main Content */}
-            <div className="md:ml-[200px] p-4 md:px-0 md:pt-4 md:pr-4 text-base">
-                <header className="flex justify-between mb-4">
+            <div className="md:ml-[200px] text-base">
+                <header className="z-10 bg-white flex justify-between w-full md:w-auto md:fixed md:top-0 p-4 md:py-4 md:pr-4 md:right-0 md:left-[200px]">
                     <div className="w-2/3 flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
                         <MagnifyingGlassIcon className="w-5 text-gray-400"/>
                         <input
@@ -106,7 +107,7 @@ export default function Default() {
                     </div>
                     <div>user</div>
                 </header>
-                <div className="pb-[200px] md:pb-0">
+                <div className="pb-[200px] md:mt-[70px] md:pb-0 md:pr-4">
                     <Outlet />
                 </div>
             </div>

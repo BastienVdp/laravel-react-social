@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('post', PostController::class);
+    Route::post('/like', [LikeController::class, 'like']);
+    Route::delete('/like/{id}', [LikeController::class, 'unlike']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);

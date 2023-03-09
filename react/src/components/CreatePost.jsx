@@ -2,13 +2,16 @@ import { PhotoIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import Button from "./fondations/Button";
 import axiosClient from "../axios"
+import { useNavigate } from "react-router-dom";
 
-export default function CreatePost() {
+export default function CreatePost({getPosts}) {
     const [post, setPost] = useState({
         content: '',
     })
+
     const [images, setImages] = useState([])
     const [errors, setErrors] = useState([])
+
     const onSubmit = (e) => {
         e.preventDefault()
 
@@ -16,7 +19,10 @@ export default function CreatePost() {
             content: post.content,
             images: images
         })
-        .then((res) => console.log(res))
+        .then((res) => {
+            console.log(res)
+            getPosts()
+        })
         .catch(err => {
             console.log(err, err.response);
             // setErrors
@@ -42,7 +48,7 @@ export default function CreatePost() {
             }, error =>  console.error(error))
         }
     }
-    
+
     return (
         <div className="mb-6 bg-white p-4 rounded-2xl">
             <form onSubmit={onSubmit} encType="multipart/form-data">
@@ -62,7 +68,7 @@ export default function CreatePost() {
                         <button className="relative flex items-center gap-2">
                             <input
                                 type="file"
-                                className="absolute left-0 top-0 right-0 bottom-0 opacity-0"
+                                className="absolute left-0 top-0 right-0 bottom-0 opacity-0 z-0"
                                 onChange={onImageChoose}
                                 multiple
                             />
