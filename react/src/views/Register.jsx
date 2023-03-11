@@ -24,6 +24,7 @@ export default function Register()
             password_confirmation: repassword
         })
         .then(({data}) => {
+            console.log(data)
             setCurrentUser(data.user)
             setUserToken(data.token)
         })

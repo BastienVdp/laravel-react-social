@@ -3,14 +3,15 @@ import Button from "./fondations/Button";
 import axiosClient from "../axios"
 import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Avatar from "./fondations/Avatar";
 
 export default function PostItem({post}) {
 
     const { currentUser } = useStateContext()
 
     const [liked, setLiked] = useState(
-        post.likes?.filter(element => element.user_id === currentUser.id).length > 0
+        post.likes?.filter(like => like.user.id === currentUser.id).length > 0
             ? true
             : false
         )
@@ -21,40 +22,36 @@ export default function PostItem({post}) {
         share: 0
     })
 
+    const [likes, setLikes] = useState(post.likes)
+
     const like = () => {
         axiosClient.post('/like', {
             post_id: post.id
         })
         .then((res) => {
+            setLikes(res.data.likes)
             setLiked(true)
-            setCount({
-                ...count,
-                likes: res.data.likes.length
-            })
         })
         .catch(err => {
-            console.log(err, err.response);
+            console.log(err, err.response)
         })
     }
 
     const unlike = () => {
         axiosClient.delete(`/like/${post.id}`)
             .then((res) => {
+                setLikes(res.data.likes)
                 setLiked(false)
-                setCount({
-                    ...count,
-                    likes: res.data.likes.length
-                })
             })
             .catch(err => {
-                console.log(err, err.response);
+                console.log(err, err.response)
             })
     }
 
     return (
         <div className="rounded-2xl bg-white p-4 mb-6">
             <div className="flex gap-4 items-center mb-3">
-                <img src="https://via.placeholder.com/50" alt="img" className="w-11 rounded-full" />
+                <Avatar url={post.user.avatar} styles="w-11 rounded-full"/>
                 <div className="flex flex-col">
                     <b className="text-slate-500">{post.user.username}</b>
                     <span className="text-sm text-gray-400">15h. Public</span>
@@ -65,14 +62,32 @@ export default function PostItem({post}) {
             </p>
             {post.images.length > 0 ? <PostImage images={post.images}/> : null}
             <div className="flex justify-between items-center py-2">
-                {count.likes}
+                {/* {count.likes} */}
+                <ul className="flex">
+                    {likes.slice(0, 3).map((like, i) => (
+                        <li className="mr-[-5px]" key={i}>
+                            <Avatar url={like.user.avatar} styles="w-5 rounded-full"/>
+                        </li>
+                    ))}
+                    {likes.length > 3 ?
+                    <li className="mr-[-5px]">
+                        <div className="w-5 h-5 rounded-full bg-slate-600 text-white text-xxs flex justify-center items-center">
+                            +{likes.length - 3}
+                        </div>
+                    </li> : null }
+
+                </ul>
+
                 <ul className="flex gap-3 text-gray-400">
                     <li>3 Comments</li>
                     <li>17 Share</li>
                 </ul>
             </div>
             <div className="flex justify-between py-2 text-slate-500 text-sm font-semibold border-t border-b">
-                <button className={`w-auto flex gap-1 items-center ${liked ? 'text-red-300': null}`} onClick={liked ? unlike : like}>
+                <button
+                    className={`w-auto flex gap-1 items-center ${liked ? 'text-red-300': null}`}
+                    onClick={liked ? unlike : like}
+                >
                     <HeartIcon className="w-4"/>
                     Like
                 </button>
@@ -87,18 +102,18 @@ export default function PostItem({post}) {
             </div>
             <div className="flex pt-3 gap-2">
                 <div className="flex gap-2 w-full">
-                    <img src="https://via.placeholder.com/50" alt="img" className="w-9 h-9 rounded-full flex-none" />
+                    <Avatar url={"https://via.placeholder.com/50"} styles="w-9 h-9 rounded-full flex-none"/>
                     <input
                         type="text"
                         className="w-full border-none outline-none bg-gray-100 rounded-lg px-2 text-sm"
                         placeholder="Write a comment"
                     />
                 </div>
-                <button className="bg-blue-100 p-2 rounded-lg text-blue-400">
+                <Button level="secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
-                </button>
+                </Button>
             </div>
         </div>
     )

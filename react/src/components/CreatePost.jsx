@@ -3,8 +3,12 @@ import { useEffect, useState } from "react";
 import Button from "./fondations/Button";
 import axiosClient from "../axios"
 import { useNavigate } from "react-router-dom";
+import Avatar from "./fondations/Avatar";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function CreatePost({getPosts}) {
+    const { currentUser } = useStateContext()
+
     const [post, setPost] = useState({
         content: '',
     })
@@ -20,7 +24,7 @@ export default function CreatePost({getPosts}) {
             images: images
         })
         .then((res) => {
-            console.log(res)
+            setPost({content: ''})
             getPosts()
         })
         .catch(err => {
@@ -53,7 +57,7 @@ export default function CreatePost({getPosts}) {
         <div className="mb-6 bg-white p-4 rounded-2xl">
             <form onSubmit={onSubmit} encType="multipart/form-data">
                 <div className="flex gap-3 mb-4">
-                    <img src="https://via.placeholder.com/50" alt="img" className="w-11 rounded-full" />
+                    <Avatar url={currentUser.avatar} styles="w-11 rounded-full" />
                     <input
                         type="text"
                         name="content"

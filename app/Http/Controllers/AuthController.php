@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
@@ -17,12 +18,13 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt($data['password'])
+            'password' => bcrypt($data['password']),
         ]);
+
         $token = $user->createToken('main')->plainTextToken;
 
         return response([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ]);
     }
@@ -43,7 +45,7 @@ class AuthController extends Controller
         $token = $user->createToken('main')->plainTextToken;
 
         return response([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ]);
     }

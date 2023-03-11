@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Like;
+use App\Models\Post;
 use App\Contracts\Likeable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -42,48 +43,19 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birthday' => 'datetime'
     ];
+
+
 
     public function likes()
     {
         return $this->hasMany(Like::class);
     }
 
-    public function like(Likeable $likeable): self
+    public function posts()
     {
-        if ($this->hasLiked($likeable)) {
-            return $this;
-        }
-
-        (new Like())
-            ->user()->associate($this)
-            ->likeable()->associate($likeable)
-            ->save();
-
-        return $this;
+        return $this->hasMany(Post::class);
     }
 
-    public function unlike(Likeable $likeable): self
-    {
-        if (!$this->hasLiked($likeable)) {
-            return $this;
-        }
-
-        $likeable->likes()
-            ->whereHas('user', fn($q) => $q->whereId($this->id))
-            ->delete();
-
-        return $this;
-    }
-
-    public function hasLiked(Likeable $likeable): bool
-    {
-        if (!$likeable->exists) {
-            return false;
-        }
-
-        return $likeable->likes()
-            ->whereHas('user', fn($q) =>  $q->whereId($this->id))
-            ->exists();
-    }
 }

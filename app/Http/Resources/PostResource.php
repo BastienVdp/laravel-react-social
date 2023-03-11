@@ -22,7 +22,7 @@ class PostResource extends JsonResource
             'images' => $this->images,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'user' => new UserResource(User::find($this->user_id)),
-            'likes' => $this->likes
+            'likes' => LikeResource::collection($this->likes)
         ];
     }
 }

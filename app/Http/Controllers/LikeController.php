@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Like;
 use App\Models\Post;
 use App\Http\Requests\LikeRequest;
+use App\Http\Resources\LikeResource;
 use Illuminate\Support\Facades\Request;
 
 
@@ -40,7 +41,7 @@ class LikeController extends Controller
         }
 
         return response()->json([
-            'likes' => $post->likes,
+            'likes' => LikeResource::collection($post->likes),
         ]);
 
 
@@ -62,7 +63,7 @@ class LikeController extends Controller
         $post = Post::find($id);
 
         return response()->json([
-            'likes' => $post->likes
+            'likes' => LikeResource::collection($post->likes)
         ]);
     }
 

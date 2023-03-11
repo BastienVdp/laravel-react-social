@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.loading {
+    background-color: lightgray;
+    color: lightgray;
+    border-radius: 10px;
+    line-height: auto;
+    transition: .4s ease .4s;
+}
+
+.loaded {
+    background-color: transparent;
+    border-radius: 10px;
+    transition: .4s ease .4s;
+}

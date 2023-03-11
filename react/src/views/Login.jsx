@@ -20,6 +20,7 @@ export default function Login()
             password,
         })
         .then(({data}) => {
+            console.log(data)
             setCurrentUser(data.user)
             setUserToken(data.token)
         })

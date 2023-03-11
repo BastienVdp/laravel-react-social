@@ -38,7 +38,6 @@ export const ContextProvider = ({ children }) => {
     const [posts, setPosts] = useState(tmpPosts)
 
     const setCurrentUser = (user) => {
-        console.log(user)
         if(user) {
             localStorage.setItem('USER', JSON.stringify(user))
         } else {
