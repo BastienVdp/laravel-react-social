@@ -53,30 +53,28 @@ export default function Default() {
 
     const { currentUser, userToken, setCurrentUser, setUserToken } = useStateContext()
 
-    const [search, setSearch] = useState(null)
+    const [search, setSearch] = useState('')
     const [dataSearch, setDataSearch] = useState([{}])
 
     useEffect(() => {
         if(search) {
-            const timeOutId = setTimeout(() => search !== null ? fetchData() : null, 500);
+            const timeOutId = setTimeout(() => search !== '' ? fetchData() : null, 500);
             return () => clearTimeout(timeOutId)
         }
 
     }, [search])
 
-    const fetchData = () => {
-        axiosClient.get(`/search/${search}`)
+    const fetchData = async () => {
+        await axiosClient.get(`/search/${search}`)
         .then((res) => {
             setDataSearch(res.data.data)
-            console.log(res.data.data)
         })
         .catch(err => setDataSearch([]))
     }
 
-    const logout = e => {
+    const logout = async e => {
         e.preventDefault()
-        console.log('logout')
-        axiosClient.post('/logout')
+        await axiosClient.post('/logout')
             .then(response => {
                 setCurrentUser({})
                 setUserToken(null)
@@ -115,8 +113,8 @@ export default function Default() {
                 </nav>
             </div>
             {/* Main Content */}
-            <div className="md:ml-[200px] text-base">
-                <header className="z-10 bg-white flex justify-between w-full md:w-auto md:fixed md:top-0 p-4 md:py-4 md:pr-4 md:right-0 md:left-[200px]">
+            <div className="md:ml-[200px] text-base pr-4 px-4 md:px-0">
+                <header className="z-10 bg-white flex justify-between w-full py-4">
                     <div className="relative w-2/3 h-9 flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
                         <MagnifyingGlassIcon className="w-5 text-gray-400"/>
                         <input
@@ -130,11 +128,11 @@ export default function Default() {
                             autoComplete={"off"}
                             className="border-none outline-none w-full text-gray-800"
                         />
-                        {dataSearch.length > 0 && search !== null ?
-                        <div className="absolute top-10 left-0 bg-white p-4 right-0 rounded-lg">
+                        {dataSearch.length > 0 && search !== '' ?
+                        <div className="absolute top-10 left-0 bg-white p-4 right-0 rounded-lg z-10">
                             <ul>
-                                {dataSearch.map(result => (
-                                    <li key={result.id}>
+                                {dataSearch?.map((result, i) => (
+                                    <li key={i}>
                                         <Link reloadDocument to={`/profile/${result.id}`} onClick={() => setDataSearch([])}>
                                             {result.username}
                                         </Link>
@@ -147,7 +145,7 @@ export default function Default() {
                     </div>
                     <div>{currentUser.username}</div>
                 </header>
-                <div className="pb-[200px] md:mt-[70px] md:pb-0 md:pr-4">
+                <div className="pb-[200px]">
                     <Outlet />
                 </div>
             </div>

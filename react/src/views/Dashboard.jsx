@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react"
 import axiosClient from "../axios"
 import Feed from "../components/Feed"
+import Card from "../components/fondations/Card"
 
 export default function Dashboard()
 {
     const [posts, setPosts] = useState([])
 
-    const getPosts = () => {
-        axiosClient.get('/post')
+    const getPosts = async () => {
+        await axiosClient.get('/post')
             .then(({data}) => {
                 setPosts(data.data)
             })
@@ -23,7 +24,9 @@ export default function Dashboard()
                 <Feed posts={posts} getPosts={getPosts}/>
             </div>
             <div className="shrink-0 w-1/3">
-                side
+                <Card title="Tu pourrais connaitre">
+                    Lolilol
+                </Card>
             </div>
         </div>
     )

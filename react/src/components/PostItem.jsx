@@ -1,7 +1,7 @@
 import { ArrowTopRightOnSquareIcon, ChatBubbleBottomCenterIcon, HeartIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import Button from "./fondations/Button";
 import axiosClient from "../axios"
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import { useEffect, useState } from "react";
 import Avatar from "./fondations/Avatar";
@@ -53,7 +53,9 @@ export default function PostItem({post}) {
             <div className="flex gap-4 items-center mb-3">
                 <Avatar url={post.user.avatar} styles="w-11 rounded-full"/>
                 <div className="flex flex-col">
-                    <b className="text-slate-500">{post.user.username}</b>
+                    <Link to={`/profile/${post.user.id}`}>
+                        <b className="text-slate-500">{post.user.username}</b>
+                    </Link>
                     <span className="text-sm text-gray-400">15h. Public</span>
                 </div>
             </div>
