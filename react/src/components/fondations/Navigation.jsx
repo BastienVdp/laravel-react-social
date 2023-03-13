@@ -2,6 +2,8 @@ import React from 'react'
 import { NavLink } from "react-router-dom";
 import { ArrowRightOnRectangleIcon, BellIcon, ChatBubbleLeftRightIcon, Cog8ToothIcon, GlobeAltIcon, MagnifyingGlassIcon, Square2StackIcon, UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
+import axiosClient from '../../axios';
+import { useStateContext } from '../../contexts/ContextProvider';
 
 const navigation = [
     {
@@ -47,6 +49,16 @@ const navigation = [
 ]
 
 export default function Navigation() {
+    const { setCurrentUser, setUserToken } = useStateContext()
+    const logout = async e => {
+        e.preventDefault()
+        await axiosClient.post('/logout')
+            .then(response => {
+                setCurrentUser({})
+                setUserToken(null)
+            })
+    }
+
   return (
     <nav className="w-full">
         <ul className="flex flex-row gap-3 md:flex-col w-full">

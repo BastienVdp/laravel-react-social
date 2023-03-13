@@ -8,32 +8,41 @@ import ButtonFile from '../components/fondations/ButtonFile'
 import axiosClient from '../axios'
 import { useParams } from 'react-router-dom'
 import ProfileSkeleton from '../components/fondations/skeletons/ProfileSkeleton'
+import Button from '../components/fondations/Button'
+import useFriends from '../composables/Friends'
 
 export default function Profile() {
 
     const { currentUser } = useStateContext()
     const { id } = useParams();
     const idProfile = parseInt(id) || currentUser.id
-
     const [user, setUser] = useState('')
     const [posts, setPosts] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const own = idProfile === currentUser.id ? true : false
 
-    const fetchData = async () => {
-        await axiosClient.get(`/users/${idProfile}`)
-        .then((res) => {
+    const { friends, getAllFriendships, addFriend } = useFriends()
 
-            setUser(res.data.data)
-            setPosts(res.data.data.posts)
-            setLoading(false)
-        })
-        .catch(err => console.log(err))
+    const fetchData = async () => {
+        await Promise.all([
+            axiosClient.get(`/users/${idProfile}`)
+                .then((res) => {
+                    setUser(res.data.data)
+                    setPosts(res.data.data.posts)
+                    setLoading(false)
+                })
+                .catch(err => console.log(err)),
+                getAllFriendships(idProfile)
+
+        ]);
     }
+
+    const add = async () => addFriend(idProfile)
 
     useEffect(() => {
         fetchData()
+
     }, [])
 
     if(loading) return <ProfileSkeleton />
@@ -73,34 +82,43 @@ export default function Profile() {
                 <button className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg font-bold text-slate-500">
                     Edit basic info
                 </button>
-                : null}
+                :
+                <Button level="secondary" onClick={add}>
+                    Ajouter
+                </Button>
+                }
             </div>
         </div>
         <div className="bg-gray-100 rounded-2xl p-6 flex flex-col lg:flex-row gap-6">
-            <div className="w-full grow-0 self-start bg-white rounded-lg p-4">
-                <h1 className="text-slate-500 font-bold border-gray-100 mb-4">
-                    INTRO
-                </h1>
-                <ul className="text-slate-500 flex flex-col gap-2">
-                    <li className="flex items-center">
-                        <span className="w-8">
-                            <GlobeAltIcon className='w-5'/>
-                        </span>
-                        uihut.com
-                    </li>
-                    <li className="flex items-center">
-                        <span className="w-8">
-                            <CakeIcon className='w-5'/>
-                        </span>
-                        {user.birthday}
-                    </li>
-                    <li className="flex items-center">
-                        <span className="w-8">
-                            <BuildingLibraryIcon className='w-5'/>
-                        </span>
-                        {user.username}
-                    </li>
-                </ul>
+            <div className="w-full grow-0 self-start">
+                <div className="w-full bg-white rounded-lg p-4 mb-6">
+                    <h1 className="text-slate-500 font-bold border-gray-100 mb-4">
+                        INTRO
+                    </h1>
+                    <ul className="text-slate-500 flex flex-col gap-2">
+                        <li className="flex items-center">
+                            <span className="w-8">
+                                <GlobeAltIcon className='w-5'/>
+                            </span>
+                            uihut.com
+                        </li>
+                        <li className="flex items-center">
+                            <span className="w-8">
+                                <CakeIcon className='w-5'/>
+                            </span>
+                            {user.birthday}
+                        </li>
+                        <li className="flex items-center">
+                            <span className="w-8">
+                                <BuildingLibraryIcon className='w-5'/>
+                            </span>
+                            {user.username}
+                        </li>
+                    </ul>
+                </div>
+                <div className="w-full bg-white rounded-lg p-4">
+                    Amis ({friends.length})
+                </div>
             </div>
             <div className="w-full lg:w-1/2 shrink-0">
                 <Feed posts={posts} getPosts={fetchData}/>

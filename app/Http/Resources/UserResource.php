@@ -24,7 +24,7 @@ class UserResource extends JsonResource
             'city' => $this->city ?? '',
             'birthday' => $this->birthday,
             'bio' => $this->bio ?? '',
-            'posts' => PostResource::collection($this->whenLoaded('posts'))
+            'posts' => PostResource::collection($this->whenLoaded('posts')),
         ];
     }
 }

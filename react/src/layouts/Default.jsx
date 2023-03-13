@@ -5,6 +5,7 @@ import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios";
 import { useState, useEffect } from 'react'
 import Navigation from "../components/fondations/Navigation";
+import Avatar from "../components/fondations/Avatar";
 
 
 
@@ -31,14 +32,7 @@ export default function Default() {
         .catch(err => setDataSearch([]))
     }
 
-    const logout = async e => {
-        e.preventDefault()
-        await axiosClient.post('/logout')
-            .then(response => {
-                setCurrentUser({})
-                setUserToken(null)
-            })
-    }
+
 
     if(userToken === null) return <Navigate to="/login" />
 
@@ -82,7 +76,13 @@ export default function Default() {
                         </div>
                         : null}
                     </div>
-                    <div>{currentUser.username}</div>
+                    <div className="flex items-center gap-4 relative">
+                        <span className="text-slate-500 font-bold">{currentUser.username}</span>
+                        <Avatar url={currentUser.avatar} styles="w-9 rounded-lg"/>
+                        <Link to="/notifications" className="absolute right-[-5px] bottom-[-5px] rounded-full bg-red-400 w-5 h-5 text-xxs text-center leading-5 text-white">
+                            0
+                        </Link>
+                    </div>
                 </header>
                 <div className="pb-[200px]">
                     <Outlet />

@@ -13,8 +13,7 @@ axiosClient.interceptors.request.use(config => {
 
 axiosClient.interceptors.response.use(response => response, error => {
     if(error.response?.status === 401) {
-        // localStorage.deleteItem('TOKEN')
-        // window.location.reload()
+        localStorage.clear()
         router.navigate('/login')
         return error
     }

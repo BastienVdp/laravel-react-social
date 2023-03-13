@@ -17,4 +17,13 @@ class UserController extends Controller
             User::where('name', 'like', '%'.$request->search.'%')->get()
         );
     }
+
+    // public function getFriendsRequests(Request $request) {
+    //     $user = User::find($request->user()->id);
+    //     $requests = $user->getFriendRequests();
+
+    //     return response()->json([
+    //         'friends_requests' => $requests
+    //     ]);
+    // }
 }
