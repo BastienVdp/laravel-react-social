@@ -3,16 +3,17 @@ import PostItem from "../components/PostItem"
 import CreatePost from "../components/CreatePost"
 import { useEffect, useState } from "react"
 import axiosClient from "../axios"
+import FeedList from './FeedList'
+import PostItemSkeleton from './fondations/skeletons/PostItemSkeleton'
 
-export default function Feed({posts, getPosts}) {
+export default function Feed({posts, getPosts, loading}) {
 
-    const [loading, setLoading] = useState(false)
-
-    if(loading) return "Loading..."
     return <>
-        <CreatePost getPosts={getPosts}/>
+        <CreatePost getPosts={getPosts} loading={loading}/>
         <div className="flex flex-col">
-            {posts?.map(post => (
+            {loading ? [0, 1, 2, 3, 4].map((i) => (
+                <PostItemSkeleton key={i}/>
+            )) : posts?.map(post => (
                 <PostItem post={post} key={post.id} />
             ))}
         </div>

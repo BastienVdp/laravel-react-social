@@ -5,8 +5,9 @@ import axiosClient from "../axios"
 import { useNavigate } from "react-router-dom";
 import Avatar from "./fondations/Avatar";
 import { useStateContext } from "../contexts/ContextProvider";
+import CreatePostSkeleton from "./fondations/skeletons/CreatePostSkeleton";
 
-export default function CreatePost({getPosts}) {
+export default function CreatePost({getPosts, loading}) {
     const { currentUser } = useStateContext()
 
     const [post, setPost] = useState({
@@ -53,6 +54,7 @@ export default function CreatePost({getPosts}) {
         }
     }
 
+    if(loading) return <CreatePostSkeleton />
     return (
         <div className="mb-6 bg-white p-4 rounded-2xl">
             <form onSubmit={onSubmit} encType="multipart/form-data">
@@ -83,7 +85,6 @@ export default function CreatePost({getPosts}) {
                     <Button level="primary">Post</Button>
                 </div>
             </form>
-
         </div>
     )
 }

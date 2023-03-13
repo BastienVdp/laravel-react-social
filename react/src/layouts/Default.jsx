@@ -1,53 +1,12 @@
-import { Navigate, NavLink, Link, Outlet, useNavigate } from "react-router-dom";
-import classNames from "classnames";
+import { Navigate, Link, Outlet } from "react-router-dom";
 import logo from "../assets/logo.png"
-import { ArrowRightOnRectangleIcon, BellIcon, ChatBubbleLeftRightIcon, Cog8ToothIcon, GlobeAltIcon, MagnifyingGlassIcon, Square2StackIcon, UserIcon, UsersIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios";
 import { useState, useEffect } from 'react'
+import Navigation from "../components/fondations/Navigation";
 
-const navigation = [
-    {
-        to: '/',
-        name: 'Feed',
-        icon: <Square2StackIcon />,
-    },
-    {
-        to: '/community',
-        name: 'Community',
-        icon: <UsersIcon />,
-    },
-    {
-        to: '/messages',
-        name: 'Messages',
-        icon: <ChatBubbleLeftRightIcon />,
-    },
-    // {
-    //     to: '/notification',
-    //     name: 'Notification',
-    //     icon: <BellIcon />,
-    // },
-    {
-        to: '/explore',
-        name: 'Explore',
-        icon: <GlobeAltIcon />,
-    },
-    {
-        to: '/profile',
-        name: 'Profil',
-        icon: <UserIcon />,
-    },
-    {
-        to: '/settings',
-        name: 'Settings',
-        icon: <Cog8ToothIcon />,
-    },
-    {
-        to: '/logout',
-        name: 'Logout',
-        icon: <ArrowRightOnRectangleIcon />,
-    },
-]
+
 
 export default function Default() {
 
@@ -90,30 +49,10 @@ export default function Default() {
                 {/* Logo */}
                 <img src={logo} alt="logo" className="md:block hidden mb-6"/>
                 {/* Nav */}
-                <nav className="w-full">
-                    <ul className="flex flex-row gap-3 md:flex-col w-full">
-                        {navigation.map((item, i) => (
-                            <li className="w-full" key={i}>
-                                <NavLink
-                                    to={item.to}
-                                    onClick={item.name === 'Logout' ? e => logout(e) : null}
-                                    className={({isActive}) => classNames("flex items-center flex-col md:flex-row gap-4 rounded-lg px-3 py-2 font-medium", {
-                                        'bg-slate-600 text-white': isActive,
-                                        'text-slate-500': !isActive
-                                    })}
-                                >
-                                    <span className="w-6 mx-auto md:mx-0 block md:w-5">{item.icon}</span>
-                                    <span className="text-sm md:text-base sm:block hidden">
-                                        {item.name}
-                                    </span>
-                                </NavLink>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+                <Navigation />
             </div>
             {/* Main Content */}
-            <div className="md:ml-[200px] text-base pr-4 px-4 md:px-0">
+            <div className="md:ml-[200px] text-base pr-4 px-4 md:px-0 md:pr-4">
                 <header className="z-10 bg-white flex justify-between w-full py-4">
                     <div className="relative w-2/3 h-9 flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
                         <MagnifyingGlassIcon className="w-5 text-gray-400"/>

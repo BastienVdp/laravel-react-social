@@ -21,7 +21,6 @@ use App\Http\Controllers\UserController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('post/me', [PostController::class, 'me']);
     Route::apiResource('post', PostController::class);
 
     Route::post('/like', [LikeController::class, 'like']);
