@@ -53,11 +53,11 @@ function NotificationItem({type, receiver, sender, acceptFriendRequest, denyFrie
                     </div>
                 </div>
                 {type === "friendRequest" &&
-                    <div className="flex gap-2">
+                    <div className="flex flex-col md:flex-row gap-2">
                         <Button level="secondary" onClick={e => acceptFriendRequest(sender.id)}>
                             Accepter
                         </Button>
-                        <Button level="neutral"onClick={e => denyFriendRequest(sender.id)}>
+                        <Button level="neutral" onClick={e => denyFriendRequest(sender.id)}>
                             Refuser
                         </Button>
                     </div>

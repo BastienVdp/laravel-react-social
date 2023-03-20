@@ -22,7 +22,7 @@ export default function Profile() {
 
     const own = idProfile === currentUser.id ? true : false
 
-    const { friends, getAllFriendships, addFriend } = useFriends()
+    const { friends, getFriends, addFriend } = useFriends()
 
     const fetchData = async () => {
         await Promise.all([
@@ -33,8 +33,7 @@ export default function Profile() {
                     setLoading(false)
                 })
                 .catch(err => console.log(err)),
-                getAllFriendships(idProfile)
-
+                getFriends(idProfile)
         ]);
     }
 

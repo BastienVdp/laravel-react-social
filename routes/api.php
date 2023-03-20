@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/friendship/block', [FriendshipController::class, 'remove']);
     Route::post('/friendship/unblock', [FriendshipController::class, 'remove']);
 
+    Route::get('/friendship/mine/{recipient}', [FriendshipController::class, 'myFriends']);
     Route::get('/friendship/all/{recipient}', [FriendshipController::class, 'all']);
     Route::get('/friendship/accepted/{recipient}', [FriendshipController::class, 'accepted']);
     Route::get('/friendship/pending/{recipient}', [FriendshipController::class, 'pending']);

@@ -13,11 +13,12 @@ export default function useFriends()
     const [friendships, setFriendships] = useState([])
     const [msg, setMsg] = useState(null)
     const [errors, setErrors] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     const getFriendsRequest = async () => {
         await axiosClient.get(`/friendship/pending/${currentUser.id}`).then(({data}) => {
                 setFriendsRequest(data.pending_requests)
-                // setLoading(false)
+                setLoading(false)
             })
             .catch((err) => console.log(err))
     }
@@ -30,6 +31,7 @@ export default function useFriends()
         })
         .then(() => {
             navigate("/profile")
+            setLoading(false)
         }).catch((err) => console.log(err))
     }
 
@@ -41,6 +43,7 @@ export default function useFriends()
         })
         .then(({data}) => {
             navigate("/profile")
+            setLoading(false)
         }).catch((err) => console.log(err))
     }
 
@@ -51,29 +54,31 @@ export default function useFriends()
         })
         .then((res) => {
             console.log(res)
+            setLoading(false)
         })
         .catch(err => console.log(err))
     }
 
-    const getAllFriendships = async (id) => {
-        await axiosClient.get(`/friendship/all/${id}`)
-            .then((res) => {
-                setFriendships(res.data.all_requests)
-                setFriends(res.data.all_requests.filter(f => f.status === 1))
-                console.log(friends)
+    const getFriends = async (id = currentUser.id) => {
+        await axiosClient.get(`/friendship/mine/${id}`)
+            .then(resp => {
+                setFriends(resp.data.friends)
+                setLoading(false)
             })
-            .catch(err => setErrors(err))
+            .catch(err => console.log(err));
     }
+
     return {
         friends,
         friendsRequest,
+        getFriends,
         getFriendsRequest,
         friendships,
-        getAllFriendships,
         acceptFriendRequest,
         denyFriendRequest,
         addFriend,
         msg,
-        errors
+        errors,
+        loading, setLoading
     }
 }

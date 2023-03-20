@@ -51,7 +51,19 @@
   }
 
   .skeleton-text__body {
+    height: 1.2rem;
+    border-radius: 0.25rem;
+    color: transparent;
     width: 75%;
+    margin-top: auto;
+  }
+
+  .skeleton-text__community {
+    height: 1.2rem;
+    border-radius: 0.25rem;
+    color: transparent;
+    width: 150%;
+    margin-top: auto;
   }
 
   .skeleton-footer {

@@ -10,6 +10,13 @@ use App\Http\Resources\UserResource;
 class FriendshipController extends Controller
 {
 
+    public function myFriends(Request $request) 
+    {
+        return response()->json([
+            'friends' => User::find($request->recipient)->getFriends()
+        ]);
+    }
+    
     public function all(Request $request)
     {
         $all = User::find($request->recipient)->getAllFriendships();

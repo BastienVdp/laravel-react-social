@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('avatar')->nullable();
             $table->string('cover')->nullable();
-            $table->date('birthday');
+            $table->date('birthday')->default(now());
             $table->string('city')->nullable();
-            $table->mediumText('bio')->nullable();
+            $table->string('bio')->default('Hey ! je suis nouveau');
             $table->rememberToken();
             $table->timestamps();
         });
