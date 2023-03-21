@@ -10,13 +10,13 @@ use App\Http\Resources\UserResource;
 class FriendshipController extends Controller
 {
 
-    public function myFriends(Request $request) 
+    public function myFriends(Request $request)
     {
         return response()->json([
-            'friends' => User::find($request->recipient)->getFriends()
+            'friends' => UserResource::collection(User::find($request->recipient)->getFriends())
         ]);
     }
-    
+
     public function all(Request $request)
     {
         $all = User::find($request->recipient)->getAllFriendships();
@@ -42,7 +42,7 @@ class FriendshipController extends Controller
         $friends = User::find($request->recipient)->getFriends();
 
         return response()->json([
-            'friends' => UserResource::collection($friends)
+            'friends' => FriendshipResource::collection($friends)
         ]);
 
     }
@@ -52,7 +52,7 @@ class FriendshipController extends Controller
         $denied = User::find($request->user()->id)->getDeniedFriendships();
 
         return response()->json([
-            'denied_requests' => $denied
+            'denied_requests' => FriendshipResource::collection($denied)
         ]);
 
     }
@@ -62,7 +62,7 @@ class FriendshipController extends Controller
         $blocked = User::find($request->user()->id)->getBlockedFriendships();
 
         return response()->json([
-            'blocked_requests' => $blocked
+            'blocked_requests' => FriendshipResource::collection($blocked)
         ]);
 
     }
@@ -87,10 +87,11 @@ class FriendshipController extends Controller
         $user = User::find($request->recipient);
         $sender = User::find($request->sender);
 
-        $callback = $user->acceptFriendRequest($sender);
+        $user->acceptFriendRequest($sender);
 
         return response()->json([
-            'success' => $callback
+            'friends' => UserResource::collection($user->getFriends()),
+            'pending_requests' => FriendshipResource::collection($user->getFriendRequests())
         ]);
     }
 
@@ -99,10 +100,11 @@ class FriendshipController extends Controller
         $user = User::find($request->recipient);
         $sender = User::find($request->sender);
 
-        $callback = $user->denyFriendRequest($sender);
+        $user->denyFriendRequest($sender);
 
         return response()->json([
-            'success' => $callback
+            'friends' => UserResource::collection($user->getFriends()),
+            'pending_requests' => FriendshipResource::collection($user->getFriendRequests())
         ]);
     }
 
@@ -114,7 +116,7 @@ class FriendshipController extends Controller
         $callback = $user->unfriend($friend);
 
         return response()->json([
-            'success' => $callback
+            'friends' => UserResource::collection($user->getFriends())
         ]);
     }
 
@@ -126,7 +128,8 @@ class FriendshipController extends Controller
         $callback = $user->blockFriend($friend);
 
         return response()->json([
-            'success' => $callback
+            'friends' => UserResource::collection($user->getFriends()),
+            'blocked_requests' => FriendshipResource::collection($user->getBlockedFriendships())
         ]);
     }
 
@@ -138,7 +141,7 @@ class FriendshipController extends Controller
         $callback = $user->unblockFriend($friend);
 
         return response()->json([
-            'success' => $callback
+            'blocked_requests' => FriendshipResource::collection($user->getBlockedFriendships())
         ]);
     }
 }

@@ -1,37 +1,24 @@
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import Button from "./fondations/Button";
-import axiosClient from "../axios"
-import { useNavigate } from "react-router-dom";
+import usePosts from "../composables/Posts";
 import Avatar from "./fondations/Avatar";
 import { useStateContext } from "../contexts/ContextProvider";
 import CreatePostSkeleton from "./fondations/skeletons/CreatePostSkeleton";
 
-export default function CreatePost({getPosts, loading}) {
+export default function CreatePost({loading, createPost}) {
     const { currentUser } = useStateContext()
+
 
     const [post, setPost] = useState({
         content: '',
     })
 
     const [images, setImages] = useState([])
-    const [errors, setErrors] = useState([])
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault()
-
-        axiosClient.post('/post', {
-            content: post.content,
-            images: images
-        })
-        .then((res) => {
-            setPost({content: ''})
-            getPosts()
-        })
-        .catch(err => {
-            console.log(err, err.response);
-            // setErrors
-        })
+        await createPost(post.content, images)
     }
 
     const onImageChoose = (e) => {

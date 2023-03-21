@@ -6,8 +6,7 @@ import axiosClient from "../axios";
 import { useState, useEffect } from 'react'
 import Navigation from "../components/fondations/Navigation";
 import Avatar from "../components/fondations/Avatar";
-
-
+import { Toaster } from "react-hot-toast"
 
 export default function Default() {
 
@@ -88,7 +87,7 @@ export default function Default() {
                     <Outlet />
                 </div>
             </div>
-
+            <Toaster position="bottom-right" reverseOrder={false}/>
         </div>
     )
 }

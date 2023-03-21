@@ -2,14 +2,22 @@ import React from 'react'
 import PostItem from "../components/PostItem"
 import CreatePost from "../components/CreatePost"
 import { useEffect, useState } from "react"
-import axiosClient from "../axios"
-import FeedList from './FeedList'
 import PostItemSkeleton from './fondations/skeletons/PostItemSkeleton'
+import usePosts from "../composables/Posts"
+export default function Feed() {
 
-export default function Feed({posts, getPosts, loading}) {
+    const { posts, getPosts, createPost, loading } = usePosts()
+
+    const fetchData = async() => {
+        await getPosts()
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     return <>
-        <CreatePost getPosts={getPosts} loading={loading}/>
+        <CreatePost createPost={createPost} loading={loading}/>
         <div className="flex flex-col">
             {loading ? [0, 1, 2, 3, 4].map((i) => (
                 <PostItemSkeleton key={i}/>

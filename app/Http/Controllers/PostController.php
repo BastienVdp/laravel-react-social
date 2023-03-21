@@ -20,7 +20,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         return PostResource::collection(
-            Post::orderBy('created_at', 'DESC')->get()
+            Post::orderBy('created_at', 'DESC')->paginate(3)
         );
     }
 
@@ -46,7 +46,11 @@ class PostController extends Controller
                 $post->images()->create(['path' => $path]);
             }
         }
-        return new PostResource($post);
+        return response()->json([
+            'posts' => PostResource::collection(
+                Post::orderBy('created_at', 'DESC')->get()
+            )
+        ]);
     }
 
     /**

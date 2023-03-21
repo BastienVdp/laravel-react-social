@@ -2,6 +2,7 @@ import { useState } from "react"
 import axiosClient from "../axios"
 import { useNavigate } from "react-router-dom"
 import { useStateContext } from "../contexts/ContextProvider"
+import toast from "react-hot-toast"
 
 export default function useFriends()
 {
@@ -10,13 +11,14 @@ export default function useFriends()
 
     const [friends, setFriends] = useState([])
     const [friendsRequest, setFriendsRequest] = useState([])
-    const [friendships, setFriendships] = useState([])
-    const [msg, setMsg] = useState(null)
-    const [errors, setErrors] = useState(null)
+    const [friendsBlocked, setFriendsBlocked] = useState([])
+    // const [msg, setMsg] = useState(null)
+    // const [errors, setErrors] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const getFriendsRequest = async () => {
-        await axiosClient.get(`/friendship/pending/${currentUser.id}`).then(({data}) => {
+        await axiosClient.get(`/friendship/pending/${currentUser.id}`)
+            .then(({data}) => {
                 setFriendsRequest(data.pending_requests)
                 setLoading(false)
             })
@@ -29,9 +31,9 @@ export default function useFriends()
             recipient : currentUser.id,
             sender
         })
-        .then(() => {
-            navigate("/profile")
-            setLoading(false)
+        .then(({data}) => {
+            setFriends(data.friends)
+            setFriendsRequest(data.pending_requests)
         }).catch((err) => console.log(err))
     }
 
@@ -42,9 +44,50 @@ export default function useFriends()
             sender: id,
         })
         .then(({data}) => {
-            navigate("/profile")
-            setLoading(false)
+            setFriends(data.friends)
+            setFriendsRequest(data.pending_requests)
         }).catch((err) => console.log(err))
+    }
+
+    const unfriend = async (id) => {
+        await axiosClient.post(`/friendship/remove`,
+        {
+            sender: currentUser.id,
+            recipient: id
+        })
+        .then(({data}) => {
+            setFriends(data.friends)
+            toast.success('Vous avez supprimé cet ami.')
+        })
+        .catch(err => console.log(err))
+
+    }
+
+    const blockfriend = async (id) => {
+        await axiosClient.post(`/friendship/block`,
+        {
+            sender: currentUser.id,
+            recipient: id
+        })
+        .then(({data}) => {
+            setFriends(data.friends)
+            setFriendsBlocked(data.blocked_requests)
+            toast.success('Vous avez bloqué cet ami.')
+        })
+        .catch(err => console.log(err))
+    }
+
+    const unblockfriend = async (id) => {
+        await axiosClient.post(`/friendship/unblock`,
+        {
+            sender: currentUser.id,
+            recipient: id
+        })
+        .then(({data}) => {
+            setFriendsBlocked(data.blocked_requests)
+            toast.success('Vous avez débloqué cet ami.')
+        })
+        .catch(err => console.log(err))
     }
 
     const addFriend = async (id) => {
@@ -52,8 +95,8 @@ export default function useFriends()
             sender: currentUser.id,
             recipient: id
         })
-        .then((res) => {
-            console.log(res)
+        .then(() => {
+            toast.success('Demande envoyée.')
             setLoading(false)
         })
         .catch(err => console.log(err))
@@ -61,24 +104,28 @@ export default function useFriends()
 
     const getFriends = async (id = currentUser.id) => {
         await axiosClient.get(`/friendship/mine/${id}`)
-            .then(resp => {
-                setFriends(resp.data.friends)
+            .then(({data}) => {
+                setFriends(data.friends)
                 setLoading(false)
             })
             .catch(err => console.log(err));
     }
 
+    const getFriendsBlocked = async () => {
+        await axiosClient.get(`/friendship/blocked/${currentUser.id}`)
+        .then(({data}) => {
+            setFriendsBlocked(data.blocked_requests)
+            setLoading(false)
+        })
+        .catch(err => console.log(err));
+    }
+
     return {
-        friends,
-        friendsRequest,
-        getFriends,
-        getFriendsRequest,
-        friendships,
-        acceptFriendRequest,
-        denyFriendRequest,
-        addFriend,
-        msg,
-        errors,
+        friends, getFriends,
+        friendsRequest, getFriendsRequest,
+        friendsBlocked, getFriendsBlocked,
+        acceptFriendRequest, denyFriendRequest,
+        addFriend, unfriend, blockfriend, unblockfriend,
         loading, setLoading
     }
 }
