@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\User;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PostResource extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,14 +14,16 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'content' => $this->content,
-            'images' => $this->images,
+            'username' => $this->name,
+            'email' => $this->email,
+            'bio' => $this->bio,
+            'avatar' => $this->avatar,
+            'cover' => $this->cover,
+            'birthday' => $this->birthday,
+            'posts' => $this->whenLoaded('posts'),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'user' => new UserResource(User::find($this->user_id)),
-            'likes' => LikeResource::collection($this->likes)
         ];
     }
 }

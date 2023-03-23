@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Comment;
 
-use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Resources\User\UserResource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class LikeResource extends JsonResource
+class CommentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,7 +18,8 @@ class LikeResource extends JsonResource
     {
         return [
             'post_id' => $this->post_id,
-            'user' => new UserResource(User::find($this->user_id))
+            'user' => UserResource::make(User::find($this->user_id)),
+            'body' => $this->body,
         ];
     }
 }

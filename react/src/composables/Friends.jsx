@@ -12,14 +12,12 @@ export default function useFriends()
     const [friends, setFriends] = useState([])
     const [friendsRequest, setFriendsRequest] = useState([])
     const [friendsBlocked, setFriendsBlocked] = useState([])
-    // const [msg, setMsg] = useState(null)
-    // const [errors, setErrors] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const getFriendsRequest = async () => {
         await axiosClient.get(`/friendship/pending/${currentUser.id}`)
             .then(({data}) => {
-                setFriendsRequest(data.pending_requests)
+                setFriendsRequest(data.data)
                 setLoading(false)
             })
             .catch((err) => console.log(err))
@@ -32,8 +30,8 @@ export default function useFriends()
             sender
         })
         .then(({data}) => {
-            setFriends(data.friends)
-            setFriendsRequest(data.pending_requests)
+            setFriends(data.friends.data)
+            setFriendsRequest(data.pending_requests.data)
         }).catch((err) => console.log(err))
     }
 
@@ -56,7 +54,7 @@ export default function useFriends()
             recipient: id
         })
         .then(({data}) => {
-            setFriends(data.friends)
+            setFriends(data.data)
             toast.success('Vous avez supprimé cet ami.')
         })
         .catch(err => console.log(err))
@@ -70,8 +68,9 @@ export default function useFriends()
             recipient: id
         })
         .then(({data}) => {
-            setFriends(data.friends)
-            setFriendsBlocked(data.blocked_requests)
+            console.log(data)
+            setFriends(data.friends.data)
+            setFriendsBlocked(data.blocked_requests.data)
             toast.success('Vous avez bloqué cet ami.')
         })
         .catch(err => console.log(err))
@@ -84,7 +83,7 @@ export default function useFriends()
             recipient: id
         })
         .then(({data}) => {
-            setFriendsBlocked(data.blocked_requests)
+            setFriendsBlocked(data.blocked_requests.data)
             toast.success('Vous avez débloqué cet ami.')
         })
         .catch(err => console.log(err))
@@ -105,7 +104,7 @@ export default function useFriends()
     const getFriends = async (id = currentUser.id) => {
         await axiosClient.get(`/friendship/mine/${id}`)
             .then(({data}) => {
-                setFriends(data.friends)
+                setFriends(data.data)
                 setLoading(false)
             })
             .catch(err => console.log(err));
@@ -114,7 +113,7 @@ export default function useFriends()
     const getFriendsBlocked = async () => {
         await axiosClient.get(`/friendship/blocked/${currentUser.id}`)
         .then(({data}) => {
-            setFriendsBlocked(data.blocked_requests)
+            setFriendsBlocked(data.data)
             setLoading(false)
         })
         .catch(err => console.log(err));

@@ -22,26 +22,30 @@ export default function Profile() {
 
     const own = idProfile === currentUser.id ? true : false
 
-    const { friends, getFriends, addFriend } = useFriends()
+    const { friends, getFriends, addFriend, unfriend} = useFriends()
 
+    const beFriend = friends.filter(friend => friend.id === currentUser.id)
     const fetchData = async () => {
         await Promise.all([
             axiosClient.get(`/users/${idProfile}`)
-                .then((res) => {
-                    setUser(res.data.data)
-                    setPosts(res.data.data.posts)
-                    setLoading(false)
-                })
-                .catch(err => console.log(err)),
-                getFriends(idProfile)
+            .then(({data}) => {
+                console.log(data)
+                setUser(data.data)
+                setPosts(data.data.posts)
+                setLoading(false)
+            })
+            .catch(err => console.log(err)),
+            getFriends(idProfile)
         ]);
     }
 
-    const add = async () => addFriend(idProfile)
+    const handleFriend = async (id) => {
+        if(beFriend.length > 0) return unfriend(id)
+        addFriend(id)
+    }
 
     useEffect(() => {
         fetchData()
-
     }, [])
 
     if(loading) return <ProfileSkeleton />
@@ -81,11 +85,14 @@ export default function Profile() {
                 <button className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg font-bold text-slate-500">
                     Edit basic info
                 </button>
-                :
-                <Button level="secondary" onClick={add}>
+                : beFriend.length === 0 ?
+                <Button level="secondary" onClick={_ => handleFriend(user.id)}>
                     Ajouter
                 </Button>
-                }
+                :
+                <Button level="neutral" onClick={_ => handleFriend(user.id)}>
+                    Supprimer
+                </Button>}
             </div>
         </div>
         <div className="bg-gray-100 rounded-2xl p-6 flex flex-col lg:flex-row gap-6">

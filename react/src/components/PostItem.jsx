@@ -7,29 +7,22 @@ import { useEffect, useState } from "react";
 import Avatar from "./fondations/Avatar";
 
 export default function PostItem({post}) {
-
     const { currentUser } = useStateContext()
-
+    const [likes, setLikes] = useState(post.likes.data)
+    const [comment, setComment] = useState('')
+    const [comments, setComments] = useState(post.comments.data)
     const [liked, setLiked] = useState(
-        post.likes?.filter(like => like.user.id === currentUser.id).length > 0
+        post.likes?.data.filter(like => like.user.id === currentUser.id).length > 0
             ? true
             : false
         )
-
-    const [count, setCount] = useState({
-        likes: post.likes?.length,
-        comments: 0,
-        share: 0
-    })
-
-    const [likes, setLikes] = useState(post.likes)
 
     const like = () => {
         axiosClient.post('/like', {
             post_id: post.id
         })
-        .then((res) => {
-            setLikes(res.data.likes)
+        .then(({data}) => {
+            setLikes(data.data)
             setLiked(true)
         })
         .catch(err => {
@@ -39,8 +32,8 @@ export default function PostItem({post}) {
 
     const unlike = () => {
         axiosClient.delete(`/like/${post.id}`)
-            .then((res) => {
-                setLikes(res.data.likes)
+            .then(({data}) => {
+                setLikes(data.data)
                 setLiked(false)
             })
             .catch(err => {
@@ -48,6 +41,18 @@ export default function PostItem({post}) {
             })
     }
 
+    const onSubmit = async(e) => {
+        e.preventDefault()
+        axiosClient.post('/comment', {
+            post_id: post.id,
+            body: comment
+        })
+        .then(({data}) => {
+            setComments(data.data)
+            setComment('')
+        })
+        .catch(e => console.log(e))
+    }
     return (
         <div className="rounded-2xl bg-white p-4 mb-6">
             <div className="flex gap-4 items-center mb-3">
@@ -102,13 +107,25 @@ export default function PostItem({post}) {
                     Share
                 </button>
             </div>
-            <div className="flex pt-3 gap-2">
+            {comments.length > 0 ?
+                comments.map((comment, i) =>
+                    <div key={i} className="mt-3 flex items-center gap-2">
+                        <Avatar url={comment.user.avatar} styles="w-9 h-9 rounded-full"/>
+                        <div>
+                            <b className="text-slate-500 block leading-none">{comment.user.username}</b>
+                            <p className="text-gray-600">{comment.body}</p>
+                        </div>
+                    </div>
+            ) : null}
+            <form onSubmit={onSubmit} className="flex pt-3 gap-2">
                 <div className="flex gap-2 w-full">
                     <Avatar url={"https://via.placeholder.com/50"} styles="w-9 h-9 rounded-full flex-none"/>
                     <input
                         type="text"
                         className="w-full border-none outline-none bg-gray-100 rounded-lg px-2 text-sm"
                         placeholder="Write a comment"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
                     />
                 </div>
                 <Button level="secondary">
@@ -116,7 +133,7 @@ export default function PostItem({post}) {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
                 </Button>
-            </div>
+            </form>
         </div>
     )
 }

@@ -8,17 +8,15 @@ import CreatePostSkeleton from "./fondations/skeletons/CreatePostSkeleton";
 
 export default function CreatePost({loading, createPost}) {
     const { currentUser } = useStateContext()
+    const { post, setPost} = usePosts()
 
-
-    const [post, setPost] = useState({
-        content: '',
-    })
 
     const [images, setImages] = useState([])
 
     const onSubmit = async (e) => {
         e.preventDefault()
         await createPost(post.content, images)
+        setPost({content: ''})
     }
 
     const onImageChoose = (e) => {

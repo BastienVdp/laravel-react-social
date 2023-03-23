@@ -7,7 +7,7 @@ import { AxiosError } from 'axios';
 export default function usePosts()
 {
     const { currentUser } = useStateContext()
-
+    const [post, setPost] = useState({content: ''})
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(true)
     const [links, setLinks] = useState({})
@@ -29,7 +29,7 @@ export default function usePosts()
             images: images
         })
         .then(({data}) => {
-            setPosts(data.posts)
+            setPosts(data.data)
 
             toast.success('Votre publication a été créée.')
         })
@@ -40,6 +40,7 @@ export default function usePosts()
         })
     }
     return {
+        post, setPost,
         posts,
         getPosts,
         createPost,

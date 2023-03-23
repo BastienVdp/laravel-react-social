@@ -2,66 +2,44 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Like;
 use App\Models\Post;
-use App\Http\Requests\LikeRequest;
-use App\Http\Resources\LikeResource;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
+use App\Actions\Like\StoreLikeAction;
+use App\Http\Resources\Like\LikeResource;
+use App\Http\Resources\Like\LikeCollection;
+use App\Responses\Like\LikeCollectionResponse;
 
 
 class LikeController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
 
-    public function like(LikeRequest $request)
+    public function like(Request $request): LikeCollectionResponse
     {
 
-        $post = Post::find($request->post_id);
+       (new StoreLikeAction())->execute($request->post_id, $request->user()->id);
 
-        if(!count(
-            Like::where([
-                'post_id' => $request->post_id,
-                'user_id' => $request->user_id
-            ])->get())
-        ){
-            $post->likes()->create([
-                'user_id' => $request->user_id
-            ]);
-        }
-
-        return response()->json([
-            'likes' => LikeResource::collection($post->likes),
-        ]);
-
-
-        // return redirect()->back();
+        return new LikeCollectionResponse(
+            new LikeCollection(
+                Like::where('post_id', $request->post_id)->get()
+            )
+        );
     }
-
-    public function unlike(LikeRequest $request, $id)
+    /**
+     * Delete a newly created resource in storage.
+     */
+    public function unlike(Request $request, int $id): LikeCollectionResponse
     {
-        $like = Like::where([
-            'post_id' => $id,
-            'user_id' => $request->user_id
-        ]);
+        (new StoreLikeAction())->execute($id, $request->user()->id);
 
-        if($like) {
-            $like->delete();
-        }
-
-        return response()->json([
-            'likes' => LikeResource::collection(Post::find($id)->likes)
-        ]);
+        return new LikeCollectionResponse(
+            new LikeCollection(
+                Like::where('post_id', $id)->get()
+            )
+        );
     }
 
 }

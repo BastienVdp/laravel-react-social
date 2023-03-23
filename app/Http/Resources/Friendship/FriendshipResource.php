@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Friendship;
 
 use Illuminate\Http\Request;
+use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FriendshipResource extends JsonResource
@@ -17,7 +18,7 @@ class FriendshipResource extends JsonResource
         return [
             'id' => $this->id,
             'sender' => new UserResource($this->sender),
-            'recipient' =>  new UserResource($this->recipient),
+            'recipient' => new UserResource($this->recipient),
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

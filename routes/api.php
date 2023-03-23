@@ -3,11 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('/post', PostController::class);
+    Route::apiResource('/comment', CommentController::class);
 
     Route::post('/like', [LikeController::class, 'like']);
     Route::delete('/like/{id}', [LikeController::class, 'unlike']);
@@ -45,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/friendship/pending/{recipient}', [FriendshipController::class, 'pending']);
     Route::get('/friendship/denied/{recipient}', [FriendshipController::class, 'denied']);
     Route::get('/friendship/blocked/{recipient}', [FriendshipController::class, 'blocked']);
-
 });
 
 Route::post('/register', [AuthController::class, 'register']);

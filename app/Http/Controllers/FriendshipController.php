@@ -4,144 +4,165 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Resources\FriendshipResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
+use App\Http\Resources\User\UserCollection;
+use App\Responses\User\UserCollectionResponse;
+use App\Actions\Friendship\DenyFriendshipAction;
+use App\Actions\Friendship\SendFriendshipAction;
+use App\Actions\Friendship\BlockFriendshipAction;
+use App\Actions\Friendship\AcceptFriendshipAction;
+use App\Actions\Friendship\RemoveFriendshipAction;
+use App\Actions\Friendship\UnblockFriendshipAction;
+use App\Responses\Friendship\FriendshipHandleResponse;
+use App\Http\Resources\Friendship\FriendshipCollection;
+use App\Responses\Friendship\FriendshipCollectionResponse;
 
 class FriendshipController extends Controller
 {
 
-    public function myFriends(Request $request)
+    public function myFriends(Request $request): UserCollectionResponse
     {
-        return response()->json([
-            'friends' => UserResource::collection(User::find($request->recipient)->getFriends())
-        ]);
-    }
-
-    public function all(Request $request)
-    {
-        $all = User::find($request->recipient)->getAllFriendships();
-
-        return response()->json([
-            'all_requests' => FriendshipResource::collection($all)
-        ]);
+        return new UserCollectionResponse(
+            new UserCollection(
+                User::find($request->recipient)->getFriends()
+            ),
+        );
 
     }
 
-    public function pending(Request $request)
+    public function all(Request $request): UserCollectionResponse
     {
-        $pending = User::find($request->recipient)->getFriendRequests();
+        return new UserCollectionResponse(
+            new UserCollection(
+                User::find($request->recipient)->getAllFriendships()
+            )
+        );
+    }
 
-        return response()->json([
-            'pending_requests' => FriendshipResource::collection($pending)
-        ]);
+    public function pending(Request $request): FriendshipCollectionResponse
+    {
+        return new FriendshipCollectionResponse(
+            new FriendshipCollection(
+                User::find($request->recipient)->getFriendRequests()
+            )
+        );
+    }
+
+    public function denied(Request $request): FriendshipCollectionResponse
+    {
+        return new FriendshipCollectionResponse(
+            new FriendshipCollection(
+                User::find($request->recipient)->getPendingFriendships()
+            )
+        );
 
     }
 
-    public function accepted(Request $request)
+    public function blocked(Request $request): FriendshipCollectionResponse
     {
-        $friends = User::find($request->recipient)->getFriends();
-
-        return response()->json([
-            'friends' => FriendshipResource::collection($friends)
-        ]);
-
-    }
-
-    public function denied(Request $request)
-    {
-        $denied = User::find($request->user()->id)->getDeniedFriendships();
-
-        return response()->json([
-            'denied_requests' => FriendshipResource::collection($denied)
-        ]);
-
-    }
-
-    public function blocked(Request $request)
-    {
-        $blocked = User::find($request->user()->id)->getBlockedFriendships();
-
-        return response()->json([
-            'blocked_requests' => FriendshipResource::collection($blocked)
-        ]);
-
+        return new FriendshipCollectionResponse(
+            new FriendshipCollection(
+                User::find($request->recipient)->getBlockedFriendships()
+            )
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function send(Request $request)
+    public function send(Request $request): void
     {
-        $user = User::find($request->sender);
-        $recipient = User::find($request->recipient);
-
-        $callback = $user->befriend($recipient);
-
-        return response()->json([
-            'success' => $callback
-        ]);
+        (new SendFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
     }
 
-    public function accept(Request $request)
+    public function accept(Request $request): FriendshipHandleResponse
     {
-        $user = User::find($request->recipient);
-        $sender = User::find($request->sender);
+        (new AcceptFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
 
-        $user->acceptFriendRequest($sender);
-
-        return response()->json([
-            'friends' => UserResource::collection($user->getFriends()),
-            'pending_requests' => FriendshipResource::collection($user->getFriendRequests())
-        ]);
+        return new FriendshipHandleResponse(
+            new UserCollection(
+                User::find($request->user()->id)->getFriends()
+            ),
+            new FriendshipCollection(
+                User::find($request->recipient)->getPendingFriendships()
+            )
+        );
     }
 
-    public function deny(Request $request)
+    public function deny(Request $request): FriendshipHandleResponse
     {
-        $user = User::find($request->recipient);
-        $sender = User::find($request->sender);
+        (new DenyFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
 
-        $user->denyFriendRequest($sender);
-
-        return response()->json([
-            'friends' => UserResource::collection($user->getFriends()),
-            'pending_requests' => FriendshipResource::collection($user->getFriendRequests())
-        ]);
+        return new FriendshipHandleResponse(
+            new UserCollection(
+                User::find($request->recipient)->getFriends()
+            ),
+            new FriendshipCollection(
+                User::find($request->recipient)->getPendingFriendships()
+            )
+        );
     }
 
-    public function remove(Request $request)
+    public function remove(Request $request): UserCollectionResponse
     {
-        $user = User::find($request->sender);
-        $friend = User::find($request->recipient);
+        (new RemoveFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
 
-        $callback = $user->unfriend($friend);
-
-        return response()->json([
-            'friends' => UserResource::collection($user->getFriends())
-        ]);
+        return new UserCollectionResponse(
+            new UserCollection(
+                User::find($request->sender)->getFriends()
+            ),
+        );
     }
 
-    public function block(Request $request)
+    public function block(Request $request): FriendshipHandleResponse
     {
-        $user = User::find($request->sender);
-        $friend = User::find($request->recipient);
+        (new BlockFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
 
-        $callback = $user->blockFriend($friend);
-
-        return response()->json([
-            'friends' => UserResource::collection($user->getFriends()),
-            'blocked_requests' => FriendshipResource::collection($user->getBlockedFriendships())
-        ]);
+        return new FriendshipHandleResponse(
+            new UserCollection(
+                User::find($request->sender)->getFriends()
+            ),
+            new FriendshipCollection(
+                User::find($request->sender)->getPendingFriendships()
+            ),
+            new FriendshipCollection(
+                User::find($request->sender)->getBlockedFriendships()
+            )
+        );
     }
 
-    public function unblock(Request $request)
+    public function unblock(Request $request): FriendshipHandleResponse
     {
-        $user = User::find($request->sender);
-        $friend = User::find($request->recipient);
+        (new UnblockFriendshipAction())->execute(
+            $request->sender,
+            $request->recipient
+        );
 
-        $callback = $user->unblockFriend($friend);
-
-        return response()->json([
-            'blocked_requests' => FriendshipResource::collection($user->getBlockedFriendships())
-        ]);
+        return new FriendshipHandleResponse(
+            new UserCollection(
+                User::find($request->sender)->getFriends()
+            ),
+            new FriendshipCollection(
+                User::find($request->sender)->getPendingFriendships()
+            ),
+            new FriendshipCollection(
+                User::find($request->sender)->getBlockedFriendships()
+            )
+        );
     }
 }

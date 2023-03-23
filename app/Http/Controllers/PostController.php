@@ -3,71 +3,81 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Http\Resources\PostResource;
-use Illuminate\Support\Facades\File;
-use App\Http\Requests\StorePostRequest;
+
+use App\Actions\Post\StorePostAction;
 use App\Http\Requests\UpdatePostRequest;
-use App\Models\Image;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Post\PostCollection;
+use App\Responses\Post\PostCollectionResponse;
+use App\DataTransferObjects\Post\PostDataObject;
+use App\Responses\Post\PostResourceResponse;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(): PostCollectionResponse
     {
-        return PostResource::collection(
-            Post::orderBy('created_at', 'DESC')->paginate(3)
+        return new PostCollectionResponse(
+            new PostCollection(
+                Post::with(
+                        'user',
+                        'likes',
+                        'comments'
+                    )
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+            )
         );
     }
 
-    public function me(Request $request)
+    public function me(Request $request): PostCollectionResponse
     {
-        return PostResource::collection(
-            Post::where('user_id', $request->user()->id)->orderBy('created_at', 'DESC')->get()
+        return new PostCollectionResponse(
+            new PostCollection(
+                Post::with(
+                        'user',
+                        'likes',
+                        'comments'
+                    )
+                    ->where('user_id', $request->user()->id)
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+            )
         );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
+    public function store(Request $request): PostCollectionResponse
     {
-        $data = $request->safe()->except('images');
+        $postDataObject = new PostDataObject(
+            $request->content,
+            $request->images,
+            $request->user()->id,
+        );
 
-        $post = Post::create($data);
+        (new StorePostAction())
+        ->execute(
+            ...$postDataObject->toArray(),
+        );
 
-        if(isset($request->images)) {
-            foreach($request->images as $image) {
-                $path = $this->saveImage($image);
-                $post->images()->create(['path' => $path]);
-            }
-        }
-        return response()->json([
-            'posts' => PostResource::collection(
-                Post::orderBy('created_at', 'DESC')->get()
+        return new PostCollectionResponse(
+            new PostCollection(
+                Post::with(
+                        'user',
+                        'likes',
+                        'comments'
+                    )
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
             )
-        ]);
+        );
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Post $post, Request $request)
-    {
-        return new PostResource($post);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePostRequest $request, string $id)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -82,40 +92,5 @@ class PostController extends Controller
         $post->delete();
 
         return response('', 204);
-    }
-
-    private function saveImage($image)
-    {
-        // Check if image is valid base64 string
-        if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
-            // Take out the base64 encoded text without mime type
-            $image = substr($image, strpos($image, ',') + 1);
-            // Get file extension
-            $type = strtolower($type[1]); // jpg, png, gif
-
-            // Check if file is an image
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                throw new \Exception('invalid image type');
-            }
-            $image = str_replace(' ', '+', $image);
-            $image = base64_decode($image);
-
-            if ($image === false) {
-                throw new \Exception('base64_decode failed');
-            }
-        } else {
-            throw new \Exception('did not match data URI with image data');
-        }
-
-        $dir = 'images/';
-        $file = Str::random() . '.' . $type;
-        $absolutePath = public_path($dir);
-        $relativePath = $dir . $file;
-        if (!File::exists($absolutePath)) {
-            File::makeDirectory($absolutePath, 0755, true);
-        }
-        file_put_contents($relativePath, $image);
-
-        return $relativePath;
     }
 }

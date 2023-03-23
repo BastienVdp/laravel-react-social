@@ -132,7 +132,6 @@ function FriendList({friends, unfriend, block}) {
 }
 
 function FriendRequestList({friendsRequest, acceptFriendRequest, denyFriendRequest}) {
-
     return <>
         {friendsRequest.length > 0 ? <ul className="mt-4">
             {friendsRequest?.map((request) => (
