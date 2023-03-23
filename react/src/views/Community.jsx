@@ -35,7 +35,7 @@ function CommunityBar({
         },
         {
         id: 1,
-        name: "Demande d'amis"
+        name: "Demandes"
         },
         {
         id: 2,

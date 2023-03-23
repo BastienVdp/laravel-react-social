@@ -21,16 +21,16 @@ const navigation = [
         name: 'Messages',
         icon: <ChatBubbleLeftRightIcon />,
     },
-    // {
-    //     to: '/notification',
-    //     name: 'Notification',
-    //     icon: <BellIcon />,
-    // },
     {
-        to: '/explore',
-        name: 'Explore',
-        icon: <GlobeAltIcon />,
+        to: '/notifications',
+        name: 'Notification',
+        icon: <BellIcon />,
     },
+    // {
+    //     to: '/explore',
+    //     name: 'Explore',
+    //     icon: <GlobeAltIcon />,
+    // },
     {
         to: '/profile',
         name: 'Profil',
