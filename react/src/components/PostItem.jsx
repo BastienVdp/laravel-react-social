@@ -1,4 +1,4 @@
-import { ArrowTopRightOnSquareIcon, ChatBubbleBottomCenterIcon, HeartIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { ArrowTopRightOnSquareIcon, ChatBubbleBottomCenterIcon, HandThumbUpIcon, HeartIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import Button from "./fondations/Button";
 import axiosClient from "../axios"
 import { Link, useNavigate } from "react-router-dom";
@@ -19,7 +19,8 @@ export default function PostItem({post}) {
 
     const like = () => {
         axiosClient.post('/like', {
-            post_id: post.id
+            likeable_id: post.id,
+            likeable_type: 'Post'
         })
         .then(({data}) => {
             setLikes(data.data)
@@ -31,7 +32,7 @@ export default function PostItem({post}) {
     }
 
     const unlike = () => {
-        axiosClient.delete(`/like/${post.id}`)
+        axiosClient.delete(`/like/${post.id}/Post`)
             .then(({data}) => {
                 setLikes(data.data)
                 setLiked(false)
@@ -71,12 +72,12 @@ export default function PostItem({post}) {
             <div className="flex justify-between items-center py-2">
                 {/* {count.likes} */}
                 <ul className="flex">
-                    {likes.slice(0, 3).map((like, i) => (
+                    {likes?.slice(0, 3).map((like, i) => (
                         <li className="mr-[-5px]" key={i}>
                             <Avatar url={like.user.avatar} styles="w-5 rounded-full"/>
                         </li>
                     ))}
-                    {likes.length > 3 ?
+                    {likes?.length > 3 ?
                     <li className="mr-[-5px]">
                         <div className="w-5 h-5 rounded-full bg-slate-600 text-white text-xxs flex justify-center items-center">
                             +{likes.length - 3}
@@ -92,7 +93,7 @@ export default function PostItem({post}) {
             </div>
             <div className="flex justify-between py-2 text-slate-500 text-sm font-semibold border-t border-b">
                 <button
-                    className={`w-auto flex gap-1 items-center ${liked ? 'text-red-300': null}`}
+                    className={`w-auto flex gap-1 items-center ${liked ? 'text-red-400': null}`}
                     onClick={liked ? unlike : like}
                 >
                     <HeartIcon className="w-4"/>
@@ -108,14 +109,7 @@ export default function PostItem({post}) {
                 </button>
             </div>
             {comments.length > 0 ?
-                comments.map((comment, i) =>
-                    <div key={i} className="mt-3 flex items-center gap-2">
-                        <Avatar url={comment.user.avatar} styles="w-9 h-9 rounded-full"/>
-                        <div>
-                            <b className="text-slate-500 block leading-none">{comment.user.username}</b>
-                            <p className="text-gray-600">{comment.body}</p>
-                        </div>
-                    </div>
+                comments.map((comment, i) => <CommentItem key={i} comment={comment}/>
             ) : null}
             <form onSubmit={onSubmit} className="flex pt-3 gap-2">
                 <div className="flex gap-2 w-full">
@@ -138,6 +132,53 @@ export default function PostItem({post}) {
     )
 }
 
+function CommentItem({comment}) {
+    const { currentUser } = useStateContext()
+    const [likes, setLikes] = useState(comment.likes.data)
+    const [liked, setLiked] = useState(comment.likes?.data.filter(like => like.user.id === currentUser.id).length > 0
+            ? true
+            : false
+        )
+    const like = async() => {
+        await axiosClient.post('/like', {
+            likeable_id: comment.id,
+            likeable_type: 'Comment'
+        })
+        .then(({data}) => {
+            setLikes(data.data)
+            setLiked(true)
+        })
+        .catch(err => {
+            console.log(err, err.response)
+        })
+    }
+
+    const unlike = async() => {
+        await axiosClient.delete(`/like/${comment.id}/Comment`)
+            .then(({data}) => {
+                setLikes(data.data)
+                setLiked(false)
+            })
+            .catch(err => {
+                console.log(err, err.response)
+            })
+    }
+    return (
+        <div  className="mt-3 flex items-center gap-2">
+            <Avatar url={comment.user.avatar} styles="w-9 h-9 rounded-full"/>
+            <div className="w-full relative pr-10">
+                <b className="text-slate-500 block leading-none">{comment.user.username}</b>
+                <p className="text-gray-600">{comment.body}</p>
+                <button
+                    className="text-slate-400 font-medium absolute flex items-center gap-1 right-0 top-[50%] z-10"
+                    onClick={liked ? unlike : like}
+                >
+                    <span className="font-semibold text-red-400">{likes.length}</span> <HandThumbUpIcon className={`w-4 ${ liked ? 'text-red-400' : null}`}/>
+                </button>
+            </div>
+        </div>
+    )
+}
 function PostImage({images}) {
     const url = "http://laravel-react-social.test/"
     return <>

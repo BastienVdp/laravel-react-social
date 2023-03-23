@@ -3,29 +3,30 @@
 namespace App\Actions\Like;
 
 use App\Models\Like;
-use App\Models\Post;
+use Illuminate\Database\Eloquent\Model;
 
 final class StoreLikeAction
 {
     public function execute(
-        int $postId,
+        string $likeableType,
+        int $likeableId,
         int $userId,
     ): void {
-
-        if(!count(
-            Like::where([
-                'post_id' => $postId,
-                'user_id' => $userId
-            ])->get()
-        )){
-            Post::find($postId)->likes()->create([
+        $like = Like::where([
+            'likeable_id' => $likeableId,
+            'likeable_type' => 'App\\Models\\'.$likeableType,
+            'user_id' => $userId
+        ]);
+        if(
+           !$like->exists()
+        ){
+            Like::create([
+                'likeable_id' => $likeableId,
+                'likeable_type' => 'App\\Models\\'.$likeableType,
                 'user_id' => $userId
             ]);
         } else {
-            Like::where([
-                'post_id' => $postId,
-                'user_id' => $userId
-            ])->delete();
+            $like->delete();
         }
     }
 }

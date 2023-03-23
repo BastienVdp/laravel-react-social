@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/comment', CommentController::class);
 
     Route::post('/like', [LikeController::class, 'like']);
-    Route::delete('/like/{id}', [LikeController::class, 'unlike']);
+    Route::delete('/like/{likeable_id}/{likeable_type}', [LikeController::class, 'unlike']);
 
     Route::get('/search/{search}', [UserController::class, 'search']);
     Route::get('/users/{id}', [UserController::class, 'getUser']);

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Actions\Like\StoreLikeAction;
 use App\Http\Resources\Like\LikeResource;
 use App\Http\Resources\Like\LikeCollection;
+use App\Models\Comment;
 use App\Responses\Like\LikeCollectionResponse;
 
 
@@ -17,27 +18,43 @@ class LikeController extends Controller
      * Store a newly created resource in storage.
      */
 
-    public function like(Request $request): LikeCollectionResponse
+    public function like(Request $request)
     {
-
-       (new StoreLikeAction())->execute($request->post_id, $request->user()->id);
+        (new StoreLikeAction())->execute(
+            $request->likeable_type,
+            $request->likeable_id,
+            $request->user()->id
+        );
 
         return new LikeCollectionResponse(
             new LikeCollection(
-                Like::where('post_id', $request->post_id)->get()
+                Like::where('likeable_id', $request->likeable_id)
+                    ->where('likeable_type', 'App\\Models\\'.$request->likeable_type)
+                    ->where('user_id', $request->user()->id)
+                    ->get()
             )
         );
+
     }
     /**
      * Delete a newly created resource in storage.
      */
-    public function unlike(Request $request, int $id): LikeCollectionResponse
+    public function unlike(Request $request, int $likeable_id, string $likeable_type)
     {
-        (new StoreLikeAction())->execute($id, $request->user()->id);
+
+
+        (new StoreLikeAction())->execute(
+            $likeable_type,
+            $likeable_id,
+            $request->user()->id
+        );
 
         return new LikeCollectionResponse(
             new LikeCollection(
-                Like::where('post_id', $id)->get()
+                Like::where('likeable_id', $request->likeable_id)
+                    ->where('likeable_type', 'App\\Models\\'.$request->likeable_type)
+                    ->where('user_id', $request->user()->id)
+                    ->get()
             )
         );
     }
