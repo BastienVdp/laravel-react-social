@@ -20,16 +20,6 @@ class PostController extends Controller
      */
     public function index()
     {
-        // return new PostCollectionResponse(
-        //     new PostCollection(
-        //         Post::with(
-        //                 'user',
-        //                 'likes',
-        //                 'comments'
-        //             )
-        //             ->paginate(1)
-        //     )
-        // );
         return new PostCollectionResponse(
             new PostCollection(
                     Post::orderBy('created_at', 'DESC')
@@ -38,18 +28,13 @@ class PostController extends Controller
         );
     }
 
-    public function me(Request $request): PostCollectionResponse
+    public function profile(Request $request): PostCollectionResponse
     {
         return new PostCollectionResponse(
             new PostCollection(
-                Post::with(
-                        'user',
-                        'likes',
-                        'comments'
-                    )
-                    ->where('user_id', $request->user()->id)
-                    ->orderBy('created_at', 'DESC')
-                    ->get()
+                    Post::where('user_id', $request->id)
+                        ->orderBy('created_at', 'DESC')
+                        ->paginate(5)
             )
         );
     }

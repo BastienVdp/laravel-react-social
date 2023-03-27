@@ -1,7 +1,6 @@
 import { BuildingLibraryIcon, CakeIcon, CloudArrowUpIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import Feed from '../components/Feed'
-import Card from '../components/fondations/Card'
 import { useStateContext } from '../contexts/ContextProvider'
 import Avatar from '../components/fondations/Avatar'
 import ButtonFile from '../components/fondations/ButtonFile'
@@ -10,32 +9,30 @@ import { useParams } from 'react-router-dom'
 import ProfileSkeleton from '../components/fondations/skeletons/ProfileSkeleton'
 import Button from '../components/fondations/Button'
 import useFriends from '../composables/Friends'
+import usePosts from '../composables/Posts'
 
 export default function Profile() {
 
     const { currentUser } = useStateContext()
     const { id } = useParams();
     const idProfile = parseInt(id) || currentUser.id
-    const [user, setUser] = useState('')
-    const [posts, setPosts] = useState(null)
-    const [loading, setLoading] = useState(true)
 
+    const [user, setUser] = useState('')
+    const [loading, setLoading] = useState(true)
     const own = idProfile === currentUser.id ? true : false
 
-    const { friends, getFriends, addFriend, unfriend} = useFriends()
-
+    const { friends, getFriends, addFriend, unfriend } = useFriends()
     const beFriend = friends.filter(friend => friend.id === currentUser.id)
+
     const fetchData = async () => {
         await Promise.all([
             axiosClient.get(`/users/${idProfile}`)
-            .then(({data}) => {
-                console.log(data)
-                setUser(data.data)
-                setPosts(data.data.posts)
-                setLoading(false)
-            })
+                .then(({data}) => {
+                    setUser(data.data)
+                    setLoading(false)
+                })
             .catch(err => console.log(err)),
-            getFriends(idProfile)
+            getFriends(idProfile),
         ]);
     }
 
@@ -48,7 +45,7 @@ export default function Profile() {
         fetchData()
     }, [])
 
-    if(loading) return <ProfileSkeleton />
+    // if(loading) return <ProfileSkeleton />
   return <>
         <div className="bg-white rounded-2xl drop-shadow-sm mb-6">
             <div className="relative flex justify-end items-end w-full px-8 py-8 rounded-t-2xl rounded-b-lg h-40 md:h-56 lg:h-66 xl:h-96"
@@ -96,7 +93,8 @@ export default function Profile() {
             </div>
         </div>
         <div className="bg-gray-100 rounded-2xl p-6 flex flex-col lg:flex-row gap-6">
-            <div className="w-full grow-0 self-start">
+            {/* User info */}
+            <div className="w-1/3 grow-0 self-start">
                 <div className="w-full bg-white rounded-lg p-4 mb-6">
                     <h1 className="text-slate-500 font-bold border-gray-100 mb-4">
                         INTRO
@@ -126,14 +124,10 @@ export default function Profile() {
                     Amis ({friends.length})
                 </div>
             </div>
-            <div className="w-full lg:w-1/2 shrink-0">
-                <Feed posts={posts} getPosts={fetchData}/>
-            </div>
-            <div className="w-full grow-0">
-                <Card title="Tu pourrais connaitre">
-                    dede
-                </Card>
-            </div>
+
+            <Feed profileId={idProfile} profile={true}/>
+
+
         </div>
     </>
 }

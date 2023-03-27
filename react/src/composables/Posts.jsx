@@ -4,6 +4,7 @@ import toast from "react-hot-toast"
 import { useStateContext } from "../contexts/ContextProvider";
 import { AxiosError } from 'axios';
 import success from '../toast/success';
+import { useLocation } from 'react-router-dom';
 
 export default function usePosts()
 {
@@ -12,18 +13,28 @@ export default function usePosts()
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(true)
     const [paginate, setPaginate] = useState({
-        next_page_url: "/post",
+        next_page_url: `/post`,
     })
 
-    const getPosts = async () => {
+    const getPosts = async (id, profile = false) => {
         setLoading(true)
-        await axiosClient.get(paginate.next_page_url)
+        if(profile) {
+            await axiosClient.get(`/post/profile/${id === undefined ? currentUser.id : id}`)
+                .then(({data}) => {
+                    console.log(data)
+                    setPosts(data.posts)
+                    setPaginate(data.pagination)
+                    setLoading(false)
+                })
+        } else {
+            await axiosClient.get(paginate.next_page_url)
             .then(({data}) => {
                 if(data.posts.length)
                     setPosts([...posts, ...data.posts])
                     setPaginate(data.pagination)
                     setLoading(false)
             })
+        }
     }
 
     const createPost = async (content, images) => {

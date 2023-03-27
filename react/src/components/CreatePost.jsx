@@ -67,7 +67,7 @@ export default function CreatePost({loading, createPost}) {
                             Photo
                         </button>
                     </div>
-                    <Button level="primary">Post</Button>
+                    <Button level="primary" styles="px-4 py-2">Post</Button>
                 </div>
             </form>
         </div>

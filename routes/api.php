@@ -24,7 +24,11 @@ use App\Http\Controllers\NotificationController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('/post', PostController::class);
+    Route::get('/post', [PostController::class, 'index']);
+    Route::get('/post/profile/{id}', [PostController::class, 'profile']);
+    Route::post('/post', [PostController::class, 'store']);
+
+
     Route::apiResource('/comment', CommentController::class);
 
     Route::post('/like', [LikeController::class, 'like']);
@@ -41,12 +45,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/friendship/block', [FriendshipController::class, 'block']);
     Route::post('/friendship/unblock', [FriendshipController::class, 'unblock']);
 
-    Route::get('/friendship/mine/{recipient}', [FriendshipController::class, 'myFriends']);
+    Route::get('/friendship/mine/{recipient}', [FriendshipController::class, 'mine']);
     Route::get('/friendship/all/{recipient}', [FriendshipController::class, 'all']);
     Route::get('/friendship/accepted/{recipient}', [FriendshipController::class, 'accepted']);
     Route::get('/friendship/pending/{recipient}', [FriendshipController::class, 'pending']);
     Route::get('/friendship/denied/{recipient}', [FriendshipController::class, 'denied']);
     Route::get('/friendship/blocked/{recipient}', [FriendshipController::class, 'blocked']);
+    Route::get('/friendship/mutual/{recipient}', [FriendshipController::class, 'mutual']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
