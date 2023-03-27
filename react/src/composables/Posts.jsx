@@ -3,6 +3,7 @@ import axiosClient from '../axios'
 import toast from "react-hot-toast"
 import { useStateContext } from "../contexts/ContextProvider";
 import { AxiosError } from 'axios';
+import success from '../toast/success';
 
 export default function usePosts()
 {
@@ -10,16 +11,18 @@ export default function usePosts()
     const [post, setPost] = useState({content: ''})
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(true)
-    const [links, setLinks] = useState({})
-    const [meta, setMeta] = useState({})
+    const [paginate, setPaginate] = useState({
+        next_page_url: "/post",
+    })
 
     const getPosts = async () => {
-        await axiosClient.get('/post')
+        setLoading(true)
+        await axiosClient.get(paginate.next_page_url)
             .then(({data}) => {
-                setPosts(data.data)
-                // setLinks(data.links)
-                // setMeta(data.meta)
-                setLoading(false)
+                if(data.posts.length)
+                    setPosts([...posts, ...data.posts])
+                    setPaginate(data.pagination)
+                    setLoading(false)
             })
     }
 
@@ -29,9 +32,8 @@ export default function usePosts()
             images: images
         })
         .then(({data}) => {
-            setPosts(data.data)
-
-            toast.success('Votre publication a été créée.')
+            setPosts([...data.posts, ...posts])
+            toast.success(success.createPost)
         })
         .catch(err => {
             if(err instanceof AxiosError) toast.error(err.response.data.message)
@@ -44,6 +46,7 @@ export default function usePosts()
         posts,
         getPosts,
         createPost,
-        loading
+        loading,
+        paginate
     }
 }

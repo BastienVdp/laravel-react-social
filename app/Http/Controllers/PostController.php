@@ -18,17 +18,22 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): PostCollectionResponse
+    public function index()
     {
+        // return new PostCollectionResponse(
+        //     new PostCollection(
+        //         Post::with(
+        //                 'user',
+        //                 'likes',
+        //                 'comments'
+        //             )
+        //             ->paginate(1)
+        //     )
+        // );
         return new PostCollectionResponse(
             new PostCollection(
-                Post::with(
-                        'user',
-                        'likes',
-                        'comments'
-                    )
-                    ->orderBy('created_at', 'DESC')
-                    ->get()
+                    Post::orderBy('created_at', 'DESC')
+                        ->paginate(5)
             )
         );
     }
@@ -67,13 +72,8 @@ class PostController extends Controller
 
         return new PostCollectionResponse(
             new PostCollection(
-                Post::with(
-                        'user',
-                        'likes',
-                        'comments'
-                    )
-                    ->orderBy('created_at', 'DESC')
-                    ->get()
+                    Post::orderBy('created_at', 'DESC')
+                        ->paginate(5)
             )
         );
     }

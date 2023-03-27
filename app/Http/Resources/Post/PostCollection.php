@@ -4,6 +4,7 @@ namespace App\Http\Resources\Post;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\PaginationResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PostCollection extends ResourceCollection
@@ -18,8 +19,11 @@ class PostCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
+        $pagination = new PaginationResource($this);
+
         return [
-           'data' => $this->collection
+            'posts' => $this->collection,
+            'pagination' => $pagination,
         ];
     }
 }
