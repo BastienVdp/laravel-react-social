@@ -87,7 +87,7 @@ export default function PostItem({post}) {
                 </ul>
 
                 <ul className="flex gap-3 text-gray-400">
-                    <li>3 Comments</li>
+                    <li>{comments.length} Comments</li>
                     <li>17 Share</li>
                 </ul>
             </div>
@@ -164,16 +164,16 @@ function CommentItem({comment}) {
             })
     }
     return (
-        <div  className="mt-3 flex items-center gap-2">
+        <div  className="mt-3 flex items-start gap-2">
             <Avatar url={comment.user.avatar} styles="w-9 h-9 rounded-full"/>
             <div className="w-full relative pr-10">
                 <b className="text-slate-500 block leading-none">{comment.user.username}</b>
                 <p className="text-gray-600">{comment.body}</p>
                 <button
-                    className="text-slate-400 font-medium absolute flex items-center gap-1 right-0 top-[50%] z-10"
+                    className={`${ liked ? 'text-red-400' : 'text-slate-400'} font-medium absolute flex items-center gap-1 right-0 top-0 z-10`}
                     onClick={liked ? unlike : like}
                 >
-                    <span className="font-semibold text-red-400">{likes.length}</span> <HandThumbUpIcon className={`w-4 ${ liked ? 'text-red-400' : null}`}/>
+                    <span className="font-semibold">{likes.length}</span> <HandThumbUpIcon className="w-4"/>
                 </button>
             </div>
         </div>
