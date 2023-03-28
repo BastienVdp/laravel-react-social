@@ -33,7 +33,7 @@ class FriendshipController extends Controller
     {
         return new UserCollectionResponse(
             new UserCollection(
-                User::find($request->user()->id)->getFriendsOfFriends()
+                User::find($request->user()->id)->getFriendsOfFriends()->take(2)
             ),
         );
 
@@ -43,7 +43,7 @@ class FriendshipController extends Controller
     {
         return new UserCollectionResponse(
             new UserCollection(
-                User::find($request->recipient)->getAllFriendships()
+                User::find($request->user()->id)->getAllFriendships()
             )
         );
     }
@@ -61,7 +61,7 @@ class FriendshipController extends Controller
     {
         return new FriendshipCollectionResponse(
             new FriendshipCollection(
-                User::find($request->recipient)->getPendingFriendships()
+                User::find($request->user()->id)->getDeniedFriendships()
             )
         );
 
@@ -71,7 +71,7 @@ class FriendshipController extends Controller
     {
         return new FriendshipCollectionResponse(
             new FriendshipCollection(
-                User::find($request->recipient)->getBlockedFriendships()
+                User::find($request->user()->id)->getBlockedFriendships()
             )
         );
     }

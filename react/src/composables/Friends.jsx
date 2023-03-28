@@ -97,10 +97,8 @@ export default function useFriends()
         })
         .then(({data}) => {
             setLoading(false)
-            if(data.success)
-                toast.success('Demande envoyée.')
-            else
-                toast.error('Vous avez déjà fait une invitation.')
+            if(data.success) toast.success('Demande envoyée.')
+            else toast.error('Vous avez déjà fait une invitation.')
         })
         .catch(err => console.log(err))
     }
@@ -128,7 +126,6 @@ export default function useFriends()
         .then(({data}) => {
             setMutualFriends(data.data)
             setLoading(false)
-            console.log(data)
         })
         .catch(err => console.log(err));
     }
