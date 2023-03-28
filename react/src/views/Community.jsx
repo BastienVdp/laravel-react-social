@@ -4,8 +4,7 @@ import Button from '../components/fondations/Button'
 import useFriends from '../composables/Friends'
 import { UserIcon } from '@heroicons/react/24/outline'
 import CommunityListSkeleton from '../components/fondations/skeletons/CommunityListSkeleton'
-import { Navigate, useNavigate } from 'react-router-dom'
-
+import UserItem from '../components/UserItem'
 export default function Community() {
 
     const [activeTab, setActiveTab] = useState(0)
@@ -89,7 +88,7 @@ function FriendBlocked({friendsBlocked, unblockfriend}) {
                 <li key={friend.id} className="flex gap-4 items-center bg-white p-4 rounded-lg">
                     <div className="w-10">
                         <div className="mx-auto w-5 h-5 rounded-full bg-red-200 text-red-500 flex items-center">
-                        <UserIcon className="w-3 mx-auto"/>
+                            <UserIcon className="w-3 mx-auto"/>
                         </div>
                     </div>
                     <div className="flex items-center justify-between w-full">
@@ -118,7 +117,7 @@ function FriendBlocked({friendsBlocked, unblockfriend}) {
 function FriendList({friends, unfriend, block}) {
     return <>
         {friends.length > 0 ? (
-            <div className="mt-4 rounded-lg columns-1 md:columns-2 lg:columns-3">
+            <div className="mt-4 rounded-lg columns-1 lg:columns-2 xl:columns-3">
             {friends.map(friend => (
                 <Item key={friend.id} item={friend} unfriend={unfriend} block={block} />
             ))}
@@ -170,28 +169,17 @@ function FriendRequestList({friendsRequest, acceptFriendRequest, denyFriendReque
 
 function Item({item, unfriend, block}) {
     return (
-        <div key={item.id} className="p-4 bg-white rounded-lg break-inside-avoid-column mb-4">
-        <div className="flex gap-2">
-            <Avatar styles="rounded-full w-20 h-20" url="" />
-            <div className="text-base flex flex-col">
-            <b className="block">{item.username}</b>
-            <span>{item.bio === null ? 'bio' : item.bio}</span>
-            <ul className="hidden md:flex gap-4 items-center mt-auto">
-                <li>i</li>
-                <li>i</li>
-                <li>i</li>
-                <li>i</li>
-            </ul>
-            </div>
-        </div>
-        <div className="flex gap-3 mt-3">
-            <button className="w-full py-1 rounded-lg border" onClick={e => unfriend(item.id)}>
-            Supprimer
-            </button>
-            <button className="bg-red-500 rounded-lg w-full py-1 text-white" onClick={e => block(item.id)}>
-            Bloquer
-            </button>
-        </div>
-        </div>
-    )
+            <UserItem
+                styles="p-4 bg-white rounded-lg break-inside-avoid-column mb-4"
+                item={item}
+                callback1={<button className="w-full py-1 rounded-lg border" onClick={e => unfriend(item.id)}>
+                    Supprimer
+                    </button>
+                }
+                callback2={ <button className="bg-red-500 rounded-lg w-full py-1 text-white" onClick={e => block(item.id)}>
+                Bloquer
+                </button>}
+            />
+        )
+
 }

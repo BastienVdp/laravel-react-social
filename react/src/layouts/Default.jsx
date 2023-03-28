@@ -7,13 +7,14 @@ import { useState, useEffect } from 'react'
 import Navigation from "../components/fondations/Navigation";
 import Avatar from "../components/fondations/Avatar";
 import { Toaster } from "react-hot-toast"
-
+import { useLocation } from "react-router-dom";
 export default function Default() {
 
     const { currentUser, userToken, setCurrentUser, setUserToken } = useStateContext()
 
     const [search, setSearch] = useState('')
     const [dataSearch, setDataSearch] = useState([{}])
+    const { pathname } = useLocation()
 
     useEffect(() => {
         if(search) {
@@ -83,8 +84,13 @@ export default function Default() {
                         </Link>
                     </div>
                 </header>
-                <div className="pb-[200px]">
-                    <Outlet />
+                <div className="pb-[200px] flex gap-6">
+                    <div className="w-full">
+                        <Outlet />
+                    </div>
+                    {(!pathname.startsWith('/profile')) &&
+                        <div className="hidden xl:block w-[250px]">sidebar</div>
+                    }
                 </div>
             </div>
             <Toaster position="bottom-right" reverseOrder={false}/>

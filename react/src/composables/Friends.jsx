@@ -10,6 +10,7 @@ export default function useFriends()
     const { currentUser } = useStateContext()
 
     const [friends, setFriends] = useState([])
+    const [mutualFriends, setMutualFriends] = useState([])
     const [friendsRequest, setFriendsRequest] = useState([])
     const [friendsBlocked, setFriendsBlocked] = useState([])
     const [loading, setLoading] = useState(true)
@@ -94,9 +95,10 @@ export default function useFriends()
             sender: currentUser.id,
             recipient: id
         })
-        .then(() => {
-            toast.success('Demande envoyée.')
+        .then(({data}) => {
             setLoading(false)
+            if(data.success) toast.success('Demande envoyée.')
+            else toast.error('Vous avez déjà fait une invitation.')
         })
         .catch(err => console.log(err))
     }
@@ -119,8 +121,18 @@ export default function useFriends()
         .catch(err => console.log(err));
     }
 
+    const getMutualFriends = async () => {
+        await axiosClient.get(`/friendship/mutual/${currentUser.id}`)
+        .then(({data}) => {
+            setMutualFriends(data.data)
+            setLoading(false)
+        })
+        .catch(err => console.log(err));
+    }
+
     return {
         friends, getFriends,
+        mutualFriends, getMutualFriends,
         friendsRequest, getFriendsRequest,
         friendsBlocked, getFriendsBlocked,
         acceptFriendRequest, denyFriendRequest,

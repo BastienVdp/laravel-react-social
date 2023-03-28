@@ -10,8 +10,14 @@ final class SendFriendshipAction
     public function execute(
         int $senderId,
         int $recipientId,
-    ): void {
-        User::find($senderId)
-            ->befriend(User::find($recipientId));
+    ): bool {
+        $user = User::find($senderId);
+        if($user->canBeFriend(User::find($recipientId))) {
+            $user->befriend(User::find($recipientId));
+            return true;
+        } else {
+            // throw exception
+            return false;
+        }
     }
 }

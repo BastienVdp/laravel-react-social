@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Resources\User\UserResource;
 use App\Http\Resources\User\UserCollection;
 use App\Responses\User\UserCollectionResponse;
 use App\Actions\Friendship\DenyFriendshipAction;
@@ -16,15 +15,25 @@ use App\Actions\Friendship\UnblockFriendshipAction;
 use App\Responses\Friendship\FriendshipHandleResponse;
 use App\Http\Resources\Friendship\FriendshipCollection;
 use App\Responses\Friendship\FriendshipCollectionResponse;
+use Illuminate\Http\JsonResponse;
 
 class FriendshipController extends Controller
 {
 
-    public function myFriends(Request $request): UserCollectionResponse
+    public function mine(Request $request): UserCollectionResponse
     {
         return new UserCollectionResponse(
             new UserCollection(
                 User::find($request->recipient)->getFriends()
+            ),
+        );
+    }
+
+    public function mutual(Request $request): UserCollectionResponse
+    {
+        return new UserCollectionResponse(
+            new UserCollection(
+                User::find($request->user()->id)->getFriendsOfFriends()->take(2)
             ),
         );
 
@@ -34,7 +43,7 @@ class FriendshipController extends Controller
     {
         return new UserCollectionResponse(
             new UserCollection(
-                User::find($request->recipient)->getAllFriendships()
+                User::find($request->user()->id)->getAllFriendships()
             )
         );
     }
@@ -52,7 +61,7 @@ class FriendshipController extends Controller
     {
         return new FriendshipCollectionResponse(
             new FriendshipCollection(
-                User::find($request->recipient)->getPendingFriendships()
+                User::find($request->user()->id)->getDeniedFriendships()
             )
         );
 
@@ -62,7 +71,7 @@ class FriendshipController extends Controller
     {
         return new FriendshipCollectionResponse(
             new FriendshipCollection(
-                User::find($request->recipient)->getBlockedFriendships()
+                User::find($request->user()->id)->getBlockedFriendships()
             )
         );
     }
@@ -70,12 +79,16 @@ class FriendshipController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function send(Request $request): void
+    public function send(Request $request): JsonResponse
     {
-        (new SendFriendshipAction())->execute(
+        $callback = (new SendFriendshipAction())->execute(
             $request->sender,
             $request->recipient
         );
+
+        return response()->json([
+            'success' => $callback
+        ]);
     }
 
     public function accept(Request $request): FriendshipHandleResponse
