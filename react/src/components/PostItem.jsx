@@ -1,4 +1,4 @@
-import { ArrowTopRightOnSquareIcon, ChatBubbleBottomCenterIcon, HandThumbUpIcon, HeartIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { ArrowTopRightOnSquareIcon, BellIcon, ChatBubbleBottomCenterIcon, EllipsisHorizontalIcon, EyeSlashIcon, HandThumbUpIcon, HeartIcon, PaperAirplaneIcon, ShieldExclamationIcon } from "@heroicons/react/24/outline";
 import Button from "./fondations/Button";
 import axiosClient from "../axios"
 import { Link, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Avatar from "./fondations/Avatar";
 
 export default function PostItem({post}) {
+
     const { currentUser } = useStateContext()
     const [likes, setLikes] = useState(post.likes.data)
     const [comment, setComment] = useState('')
@@ -16,6 +17,15 @@ export default function PostItem({post}) {
             ? true
             : false
         )
+
+    const [open, setOpen] = useState(false)
+
+    const handleOpen = () => {
+        if(open) setOpen(false)
+        else setOpen(true)
+
+        console.log(open)
+    }
 
     const like = () => {
         axiosClient.post('/like', {
@@ -56,13 +66,42 @@ export default function PostItem({post}) {
     }
     return (
         <div className="rounded-2xl bg-white p-4 mb-6">
-            <div className="flex gap-4 items-center mb-3">
-                <Avatar url={post.user.avatar} styles="w-11 rounded-full"/>
-                <div className="flex flex-col">
-                    <Link to={`/profile/${post.user.id}`}>
-                        <b className="text-slate-500">{post.user.username}</b>
-                    </Link>
-                    <span className="text-sm text-gray-400">15h. Public</span>
+            <div className="flex items-center mb-3 justify-between">
+                <div className="flex gap-3 items-center">
+                    <Avatar url={post.user.avatar} styles="w-11 rounded-full"/>
+                    <div className="flex flex-col">
+                        <Link to={`/profile/${post.user.id}`}>
+                            <b className="text-slate-500">{post.user.username}</b>
+                        </Link>
+                        <span className="text-sm text-gray-400">15h. Public</span>
+                    </div>
+                </div>
+                <div className="relative w-1/3 flex justify-end">
+                    <button className="text-slate-500" onClick={_ => handleOpen()}>
+                        <EllipsisHorizontalIcon className="w-8"/>
+                    </button>
+                    <div className={`${open ? "opened" : "closed"} absolute top-10 left-0 right-[-25px] overflow-hidden`}>
+                        <ul className="bg-white rounded-lg shadow-lg p-4">
+                            <li className="flex items-center text-slate-500 hover:text-red-400 cursor-pointer">
+                                <span className="w-8 text-center">
+                                    <EyeSlashIcon className="w-5"/>
+                                </span>
+                                Cacher
+                            </li>
+                            <li className="flex items-center text-slate-500 hover:text-red-400 cursor-pointer">
+                                <span className="w-8 text-center">
+                                    <BellIcon className="w-5"/>
+                                </span>
+                                Activer les notifications
+                            </li>
+                            <li className="flex items-center text-slate-500 hover:text-red-400 cursor-pointer">
+                                <span className="w-8 text-center">
+                                    <ShieldExclamationIcon className="w-5"/>
+                                </span>
+                                Signaler
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <p className="text-slate-700 mb-1">
@@ -83,11 +122,9 @@ export default function PostItem({post}) {
                             +{likes.length - 3}
                         </div>
                     </li> : null }
-
                 </ul>
-
                 <ul className="flex gap-3 text-gray-400">
-                    <li>{comments.length} Comments</li>
+                    <li>{comments.length} commentaires</li>
                     <li>17 Share</li>
                 </ul>
             </div>
