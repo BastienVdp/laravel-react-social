@@ -41,10 +41,8 @@ export default function Feed({profileId, profile}) {
         }
     }
 
-
-
     return <>
-        <div className="w-full flex gap-6">
+        <div className="w-full flex flex-col-reverse lg:flex-row lg:gap-6">
             <div className="w-full">
                 {own && <CreatePost createPost={createPost} loading={false}/>}
 
@@ -56,7 +54,7 @@ export default function Feed({profileId, profile}) {
                     {canFetchMore && [0, 1, 2, 3, 4].map(_ => <PostItemSkeleton key={_}/>)}
                 </div>
             </div>
-            {own && <div className="shrink-0 w-1/3">
+            {own && <div className="shrink-0 lg:w-1/3">
                 <Card title="Tu pourrais connaitre" action={<div>Voir tout</div>}>
                     {mutualFriends.length > 0 ? mutualFriends.map(friend => (
                             <UserItem
