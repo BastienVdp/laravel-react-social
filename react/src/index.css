@@ -2,13 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-.open {
-    transform: translateX(0);
+.opened, .closed {
+    transition: all 0.3s ease-in-out;
+}
+.opened {
+    opacity: 1;
 }
 
 .closed {
-    transform: translateX(100%);
+    opacity: 0;
 }
+
 .skeleton {
     color: transparent;
     animation: skeleton-loading 1s linear infinite alternate;

@@ -24,14 +24,5 @@ export default function ProfileSkeleton() {
             </div>
         </div>
     </div>
-
-    <div className="rounded-2xl pt-6 flex flex-col lg:flex-row gap-6">
-        <div className="skeleton w-full grow-0 self-start  h-36 rounded-lg">
-        </div>
-        <div className="skeleton w-full lg:w-1/2 shrink-0 h-36 rounded-lg">
-        </div>
-        <div className="skeleton w-full grow-0 h-36 rounded-lg">
-        </div>
-    </div>
   </>
 }
