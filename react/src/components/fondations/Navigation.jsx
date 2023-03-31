@@ -8,12 +8,12 @@ import { useStateContext } from '../../contexts/ContextProvider';
 const navigation = [
     {
         to: '/',
-        name: 'Feed',
+        name: "Fil d'actualité",
         icon: <Square2StackIcon />,
     },
     {
         to: '/community',
-        name: 'Community',
+        name: 'Communauté',
         icon: <UsersIcon />,
     },
     {
@@ -23,7 +23,7 @@ const navigation = [
     },
     {
         to: '/notifications',
-        name: 'Notification',
+        name: 'Notifications',
         icon: <BellIcon />,
     },
     // {
@@ -38,12 +38,12 @@ const navigation = [
     },
     {
         to: '/settings',
-        name: 'Settings',
+        name: 'Réglages',
         icon: <Cog8ToothIcon />,
     },
     {
         to: '/logout',
-        name: 'Logout',
+        name: 'Déconnexion',
         icon: <ArrowRightOnRectangleIcon />,
     },
 ]

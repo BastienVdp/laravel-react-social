@@ -23,7 +23,7 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'content' => $this->content,
             'images' => $this->images,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at->diffForHumans(),
             'user' => new UserResource($this->user),
             'likes' => new LikeCollection($this->likes),
             'comments' => new CommentCollection($this->comments),

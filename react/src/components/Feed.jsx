@@ -9,6 +9,7 @@ import CreatePost from "../components/CreatePost"
 import PostItemSkeleton from './fondations/skeletons/PostItemSkeleton'
 import Button from './fondations/Button'
 import Card from './fondations/Card'
+import { useMemo } from 'react'
 
 export default function Feed({profileId, profile}) {
 

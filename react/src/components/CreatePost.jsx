@@ -51,7 +51,7 @@ export default function CreatePost({loading, createPost}) {
                         value={post.content}
                         onChange={e => setPost({ ...post, content: e.target.value})}
                         className="w-full border-none outline-none bg-gray-100 rounded-lg indent-4"
-                        placeholder="What's happening?"
+                        placeholder="Comment ça va ? "
                     />
                 </div>
                 <div className="flex justify-between items-center">
