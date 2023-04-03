@@ -39,7 +39,7 @@ export default function Default() {
     if(userToken === null) return <Navigate to="/login" />
 
     return (
-        <div className="font-lato">
+        <div className="font-lato relative">
             {/* Sidebar */}
             <div className="z-20 fixed left-0 right-0 md:top-0 bottom-0 w-full md:w-[200px] p-5 bg-white md:bg-none rounded-t-lg md:rounded-none">
                 {/* Logo */}
@@ -63,7 +63,7 @@ export default function Default() {
                     <div className="w-full">
                         <Outlet />
                     </div>
-                    {(!pathname.startsWith('/profile') && pathname !== '/messages') &&
+                    {(!pathname.startsWith('/profile') && !pathname.startsWith('/messages')) &&
                         <div className="hidden xl:block w-[250px]">sidebar</div>
                     }
                 </div>

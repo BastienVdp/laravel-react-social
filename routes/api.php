@@ -8,7 +8,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FriendshipController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ConversationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/friendship/denied/{recipient}', [FriendshipController::class, 'denied']);
     Route::get('/friendship/blocked/{recipient}', [FriendshipController::class, 'blocked']);
     Route::get('/friendship/mutual/{recipient}', [FriendshipController::class, 'mutual']);
+
+    Route::get('/conversations', [ConversationController::class, 'index']);
+
+    Route::post('/conversations/send', [ConversationController::class, 'send']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);

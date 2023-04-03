@@ -8,7 +8,7 @@ import { useStateContext } from '../../contexts/ContextProvider';
 const navigation = [
     {
         to: '/',
-        name: "Fil d'actualité",
+        name: "Feed",
         icon: <Square2StackIcon />,
     },
     {
@@ -66,7 +66,7 @@ export default function Navigation() {
                 <li className="w-full" key={i}>
                     <NavLink
                         to={item.to}
-                        onClick={item.name === 'Logout' ? e => logout(e) : null}
+                        onClick={item.to === '/logout' ? e => logout(e) : null}
                         className={({isActive}) => classNames("flex items-center flex-col md:flex-row gap-4 rounded-lg px-3 py-2 font-medium", {
                             'bg-slate-600 text-white': isActive,
                             'text-slate-500': !isActive
