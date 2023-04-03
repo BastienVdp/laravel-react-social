@@ -86,12 +86,11 @@ function InviewMessage({conversation}) {
 
     if(!conversation) return 'Loading..'
 
-    console.log(conversation)
     const { currentUser, userToken } = useStateContext()
     const [messages, setMessages] = useState(conversation.messages.data)
     const [message, setMessage] = useState('')
     const [participants, setParticipants] = useState(conversation.participants.data)
-        console.log(participants.length)
+
     const { newMessages, fetching, setConversationId } = usePusher()
     const endMessageRef = useRef()
 
