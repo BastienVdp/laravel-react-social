@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Message\StoreMessageAction;
 use App\Models\User;
 use App\Models\Message;
 use App\Events\MessageEvent;
@@ -26,7 +27,6 @@ class ConversationController extends Controller
         $conversation = $user->conversations()->with(['participants', 'messages' => function($q) {
             $q->orderBy('messages.created_at', 'asc');
         }])->get();
-    
                                     
         return response()->json(
             new ConversationCollection($conversation),
@@ -38,19 +38,12 @@ class ConversationController extends Controller
      */
     public function send(Request $request)
     {
-        $message = Message::create([
-            'content' => $request->content,
-            'conversation_id' => $request->conversation_id,
-            'user_id' => $request->user()->id
-        ]);
+        $message = (new StoreMessageAction)->execute($request);
 
-        $user = $request->user();
-        $conversation = $user->conversations()->with(['participants', 'messages' => function($q) {
-            $q->orderBy('messages.created_at', 'asc');
-        }])->wherePivot('conversation_id', $request->conversation_id)
-            ->get();
-
-        event(new MessageEvent($user->id, $request->conversation_id, new MessageResource($message)));
+        event(new MessageEvent(
+            $request->user()->id, 
+            $request->conversation_id, 
+            new MessageResource($message)));
     }
 
     /**
