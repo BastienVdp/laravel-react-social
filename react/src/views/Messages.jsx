@@ -3,49 +3,30 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { StarIcon } from "@heroicons/react/24/solid"
 import Button from "../components/fondations/Button"
 import Avatar from "../components/fondations/Avatar"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import axiosClient from "../axios"
 import { useStateContext } from "../contexts/ContextProvider"
-import Pusher from 'pusher-js';
+
 import usePusher from "../composables/Pusher"
+import useConversations from "../composables/Conversations"
 
 export default function Messages()
 {
-    const [loading, setLoading] = useState(true)
-    const [conversations, setConversations] = useState([{
-        id: '',
-        name: '',
-        last_message: '',
-        participants: [],
-    }])
-    const [conversationSearch, setConversationSearch] = useState([]);
-    const [search, setSearch] = useState('')
-
     const { id } = useParams()
+    const [openCreateConversation, setOpenCreateConversation] = useState(false)
+    const { loading, getConversations, conversations, search, setSearch, searchConversation, isSearch } = useConversations()
 
     useEffect(() => {
-        if(search !== '') {
-            conversations.map(conv => {    
-                const filtered = conv.participants.data.filter(obj => obj.username.indexOf(search) >= 0)
-                if(filtered.length) {
-                    setConversationSearch(filtered)
-                }
-    
-                // console.log('result :', filtered)
-            })
-        }
+        const timeOutId = setTimeout(() => searchConversation(), 500);
+        return () => clearTimeout(timeOutId)
     }, [search])
 
+
+
     useEffect(() => {
-        axiosClient.get('/conversations')
-            .then(({data}) => {
-                setConversations(data.data)
-                setLoading(false)
-            })
-            .catch(err => console.log(err))
+        getConversations()
     }, [])
 
-    if(!conversations.length > 0) return 'Loading'
     return <>
         <div className="z-30 hidden top-0 left-0 right-0 bottom-0 bg-black/75">
             <div className="absolute right-0 bottom-0 top-0 w-[200px] bg-white">
@@ -53,30 +34,52 @@ export default function Messages()
             </div>
         </div>
         <div className="h-full flex flex-col xl:flex-row gap-6 bg-gray-100 rounded-2xl p-6">
-            <div className="w-full xl:h-full xl:w-1/4 rounded-xl bg-white p-4">
-                <div className="flex gap-3 items-stretch">
-                    <div className="relative w-full flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
-                        <MagnifyingGlassIcon className="w-5 text-gray-400"/>
-                        <input
-                            type="text"
-                            name="search"
-                            placeholder="Chercher un utilisateur..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            autoComplete={"off"}
-                            className="border-none outline-none w-full text-slate-600 indent-1"
-                        />
+                <div className="w-full xl:h-full xl:w-1/4 rounded-xl bg-white p-4">
+                    <div className="flex gap-3 items-stretch">
+                        <div className="relative w-full flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
+                            <MagnifyingGlassIcon className="w-5 text-gray-400"/>
+                            <input
+                                type="text"
+                                name="search"
+                                placeholder="Chercher un ami..."
+                                value={search}
+                                onChange={e => {
+                                    e.preventDefault()
+                                    setSearch(e.target.value)
+                                }}
+                                autoComplete={"off"}
+                                className="placeholder:text-sm border-none outline-none w-full text-slate-600 indent-1"
+                            />
+                        </div>
+                        <Button level="secondary" onClick={e => setOpenCreateConversation(!openCreateConversation)}>
+                            <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                            </svg>
+                        </Button>
                     </div>
-                    <Button level="secondary" onClick={e => onClicked()}>Fav</Button>
+                    {conversations && <Sidebar conversations={conversations} isSearch={isSearch}/>}
                 </div>
-                <Sidebar conversations={conversations} conversationSearch={conversationSearch} />
-                
-            </div>
-            <div className="relative h-full w-full xl:w-3/4 rounded-xl bg-white">
-                { !loading ? id ? 
-                    <InviewMessage conversation={conversations.find(conv => conv.id == id)} />
-                : <div className="w-full h-full grid place-items-center text-lg text-gray-500 ">Cliquer sur une conversation</div>
-            :null }
+
+            <div className={`relative h-full w-full xl:w-3/4 rounded-xl bg-white`}>
+                { !loading ?
+                    openCreateConversation ?
+                        <CreateConversationView />
+                    : conversations.length == 0 ?
+                        <div>
+                            <div className="flex justify-center items-center h-full">
+                                <div className="text-center">
+                                    <div className="text-2xl text-gray-500">Vous n'avez pas encore de conversation</div>
+                                    <div className="text-gray-500">Commencez à discuter avec vos amis</div>
+                                </div>
+                            </div>
+                        </div>
+                    : id ?
+                        <InviewMessage conversation={conversations.find(conv => conv.id == id)} />
+                    :
+                        <div className="w-full h-full grid place-items-center text-lg text-gray-500 ">
+                            Cliquer sur une conversation
+                        </div>
+                    : null}
             </div>
         </div>
     </>
@@ -86,7 +89,7 @@ function InviewMessage({conversation}) {
 
     if(!conversation) return 'Loading..'
 
-    const { currentUser, userToken } = useStateContext()
+    const { currentUser } = useStateContext()
     const [messages, setMessages] = useState(conversation.messages.data)
     const [message, setMessage] = useState('')
     const [participants, setParticipants] = useState(conversation.participants.data)
@@ -100,9 +103,9 @@ function InviewMessage({conversation}) {
             setParticipants(conversation?.participants.data)
             setConversationId(conversation.id)
             scrollToBottom()
-            // endMessageRef.current?.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'}) 
+            // endMessageRef.current?.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'})
         }
-       
+
     }, [conversation])
 
     useEffect(() => {
@@ -111,7 +114,7 @@ function InviewMessage({conversation}) {
             setMessages([...messages, newMessages])
             scrollToBottom()
             // endMessageRef.current?.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'})
-        }        
+        }
     }, [newMessages])
 
     const scrollToBottom = () => {
@@ -163,66 +166,74 @@ function InviewMessage({conversation}) {
                                 </div>
                                 <Avatar styles={`w-8 h-8 rounded-full ${msg?.user?.id == currentUser.id ? 'order-2': 'order-1'}`} />
                             </div>
-                        </div> 
-                    )): null} 
+                        </div>
+                    )): null}
                     <div ref={endMessageRef} />
                 </div>
             </div>
             <form className="flex p-3 gap-3" onSubmit={sendMessage}>
-                <input 
+                <input
                     type="text"
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    placeholder="Ecrire quelque chose..." 
-                    className="resize-none w-full text-sm p-2 border border-gray-200 rounded-lg outline-none" 
+                    placeholder="Ecrire quelque chose..."
+                    className="resize-none w-full text-sm p-2 border border-gray-200 rounded-lg outline-none"
                 />
                 <Button level="secondary" disabled={message == '' ? 'disabled' : ''}>
                     Send
                 </Button>
             </form>
         </div>
-        
+
     </>
 }
 
 
-function Sidebar({conversations, conversationSearch})
-{   
+function Sidebar({conversations, isSearch})
+{
     const { currentUser } = useStateContext()
-    // console.log(conversationSearch, 'searched')
-    
-    if(!conversations) return 'Loading...'
+    console.log(isSearch, 'is searching')
     return (
         <ul className="mt-3 xl:mt-6 flex flex-row xl:flex-col gap-3">
-            {conversations.length > 0 ?
-            conversations.map((conv, i) => 
-                <li key={i} className="items-center">
-                    <Link to={`/messages/${conv.id}`} className="bg-gray-100 px-4 py-3 xl:px-2 rounded-lg flex flex-row justify-between items-center gap-2">
-                        <div className="flex items-center xl:items-start gap-2">
-                            <Avatar styles="rounded-full w-10" />
-                            <div className="overflow-hidden">
-                                <b className="text-slate-500">
-                                    
-                                    {(conv.participants?.data?.find((p) => p.id !== currentUser.id))?.username}
-                                </b>
-                                
-                                <p className="truncate text-sm text-gray-500 hidden xl:block">
-                                    {`${conv.messages?.data[conv.messages.data.length - 1]?.user.id == currentUser.id ? 'Toi : ' : ''}
-                                    ${conv.messages?.data[conv.messages.data.length - 1]?.content} `}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="text-xs text-gray-500 hidden flex-col items-end gap-1 text-right xl:flex">
-                            {conv.messages?.data[conv.messages.data.length -1]?.created_at}
-                            <StarIcon className="w-4 text-gray-300" />
-                        </div>
-                    </Link>
-                </li>
-            ) : null} 
+            {conversations.length > 0 ? <>
+                {conversations.map((conv, i) =>
+                    !isSearch ?
+                        conv.messages.data.length > 0 ?
+                            <li key={i} className="items-center">
+                                <Link to={`/messages/${conv.id}`} className="bg-gray-100 px-4 py-3 xl:px-2 rounded-lg flex flex-row justify-between items-center gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Avatar styles="rounded-full w-10" />
+                                        <div className="overflow-hidden">
+                                            <b className="text-slate-500">
+                                                {(conv.participants?.data?.find((p) => p.id !== currentUser.id))?.username}
+                                            </b>
 
-            {/* {conversationSearch.map((conv) => {
-                <p>{conv.id}</p>
-            })} */}
+                                            <p className="truncate text-sm text-gray-500 hidden xl:block">
+                                                {`${conv.messages?.data[conv.messages.data.length - 1]?.user.id == currentUser.id ? 'Toi : ' : ''}
+                                                ${conv.messages?.data[conv.messages.data.length - 1]?.content} `}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 hidden flex-col items-end gap-1 text-right xl:flex">
+                                        {conv.messages?.data[conv.messages.data.length -1]?.created_at}
+                                        <StarIcon className="w-4 text-gray-300" />
+                                    </div>
+                                </Link>
+                            </li>
+                        : null
+                    :  (
+                        <li key={i} className="items-center">
+                            {conv.name}
+                        </li>
+                    )
+                )}
+            </> : null}
+
         </ul>
     )
+}
+
+function CreateConversationView()
+{
+    return <div>hello</div>
 }

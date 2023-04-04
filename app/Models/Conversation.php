@@ -9,6 +9,8 @@ class Conversation extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function messages()
     {
         return $this->hasMany(Message::class);
@@ -17,4 +19,5 @@ class Conversation extends Model
     public function participants() {
         return $this->belongsToMany(User::class, 'conversation_participants', 'conversation_id', 'user_id');
     }
+
 }

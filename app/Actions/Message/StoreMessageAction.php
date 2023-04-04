@@ -3,12 +3,12 @@
 namespace App\Actions\Message;
 
 use App\Models\Message;
+use Illuminate\Http\Request;
 
-final class StoreMessageAction 
+final class StoreMessageAction
 {
-
     public function execute(
-       $request
+       Request $request
     )
     {
         $message = Message::create([

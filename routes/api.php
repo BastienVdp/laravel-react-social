@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/friendship/mutual/{recipient}', [FriendshipController::class, 'mutual']);
 
     Route::get('/conversations', [ConversationController::class, 'index']);
-
+    Route::get('/conversations/search/{search}', [ConversationController::class, 'search']);
     Route::post('/conversations/send', [ConversationController::class, 'send']);
 });
 

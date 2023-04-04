@@ -172,11 +172,11 @@ function Item({item, unfriend, block}) {
             <UserItem
                 styles="p-4 bg-white rounded-lg break-inside-avoid-column mb-4"
                 item={item}
-                callback1={<button className="w-full py-1 rounded-lg border" onClick={e => unfriend(item.id)}>
+                callback1={<button className="w-full py-1 rounded-lg border border-slate-200 text-slate-500" onClick={e => unfriend(item.id)}>
                     Supprimer
                     </button>
                 }
-                callback2={ <button className="bg-red-500 rounded-lg w-full py-1 text-white" onClick={e => block(item.id)}>
+                callback2={ <button className="bg-slate-200 rounded-lg w-full py-1 text-slate-500" onClick={e => block(item.id)}>
                 Bloquer
                 </button>}
             />

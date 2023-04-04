@@ -109,7 +109,7 @@ export default function PostItem({post}) {
                     <HeartIcon className="w-4"/>
                     J'aime
                 </button>
-                <button 
+                <button
                     className="w-full justify-center flex gap-1 items-center"
                     onClick={_ => setShowComment(!showComment)}
                 >
@@ -122,7 +122,7 @@ export default function PostItem({post}) {
                 </button>
             </div>
             {comments.length > 0 ?
-                comments.map((comment, i) => 
+                comments.map((comment, i) =>
                     <CommentItem key={i} comment={comment}/>
                 )
             : null}
@@ -143,7 +143,7 @@ export default function PostItem({post}) {
                             </svg>
                         </Button>
                     </form>
-               
+
         </div>
     )
 }

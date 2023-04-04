@@ -3,6 +3,7 @@
 namespace App\Actions\Friendship;
 
 use App\Models\User;
+use App\Actions\Conversation\StoreConversationAction;
 
 final class AcceptFriendshipAction
 {
@@ -12,5 +13,7 @@ final class AcceptFriendshipAction
     ): void {
         User::find($recipientId)
             ->acceptFriendRequest(User::find($senderId));
+
+        (new StoreConversationAction)->execute($senderId, $recipientId);
     }
 }
