@@ -14,14 +14,12 @@ export default function Messages()
 {
     const { id } = useParams()
     const [openCreateConversation, setOpenCreateConversation] = useState(false)
-    const { loading, getConversations, conversations, search, setSearch, searchConversation, isSearch } = useConversations()
+    const { loading, getConversations, conversations, search, setSearch, searchConversation, isSearch, error } = useConversations()
 
     useEffect(() => {
         const timeOutId = setTimeout(() => searchConversation(), 500);
         return () => clearTimeout(timeOutId)
     }, [search])
-
-
 
     useEffect(() => {
         getConversations()
@@ -36,7 +34,7 @@ export default function Messages()
         <div className="h-full flex flex-col xl:flex-row gap-6 bg-gray-100 rounded-2xl p-6">
                 <div className="w-full xl:h-full xl:w-1/4 rounded-xl bg-white p-4">
                     <div className="flex gap-3 items-stretch">
-                        <div className="relative w-full flex gap-1 items-center bg-white rounded-lg border border-gray-300 pl-3 pr-1.5 py-1.5">
+                        <div className={`relative w-full flex gap-1 items-center bg-white rounded-lg ${error ? 'border-red-500 animate-shake' : 'border-gray-300'} border  pl-3 pr-1.5 py-1.5`}>
                             <MagnifyingGlassIcon className="w-5 text-gray-400"/>
                             <input
                                 type="text"
@@ -48,23 +46,21 @@ export default function Messages()
                                     setSearch(e.target.value)
                                 }}
                                 autoComplete={"off"}
-                                className="placeholder:text-sm border-none outline-none w-full text-slate-600 indent-1"
+                                className={`placeholder:text-sm border-none outline-none w-full text-slate-600 indent-1`}
                             />
+                            
                         </div>
+                        
                         <Button level="secondary" onClick={e => setOpenCreateConversation(!openCreateConversation)}>
-                            <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-                            </svg>
+                            <StarIcon className="w-4 text-blue-400" />
                         </Button>
                     </div>
-                    {conversations && <Sidebar conversations={conversations} isSearch={isSearch}/>}
+                    {conversations && <Sidebar conversations={conversations} isSearch={isSearch} setSearch={setSearch} />}
                 </div>
 
             <div className={`relative h-full w-full xl:w-3/4 rounded-xl bg-white`}>
                 { !loading ?
-                    openCreateConversation ?
-                        <CreateConversationView />
-                    : conversations.length == 0 ?
+                    conversations.length == 0 ?
                         <div>
                             <div className="flex justify-center items-center h-full">
                                 <div className="text-center">
@@ -74,7 +70,7 @@ export default function Messages()
                             </div>
                         </div>
                     : id ?
-                        <InviewMessage conversation={conversations.find(conv => conv.id == id)} />
+                        conversations && <InviewMessage conversation={conversations.find(conv => conv.id == id)} />
                     :
                         <div className="w-full h-full grid place-items-center text-lg text-gray-500 ">
                             Cliquer sur une conversation
@@ -188,52 +184,51 @@ function InviewMessage({conversation}) {
     </>
 }
 
-
-function Sidebar({conversations, isSearch})
-{
+function SidebarItem({item, isSearch, setSearch}) {
     const { currentUser } = useStateContext()
-    console.log(isSearch, 'is searching')
+    return (
+        <li className="items-center" onClick={e => isSearch ? setSearch('') : null}>
+            <Link to={`/messages/${item.id}`} className="bg-gray-100 px-4 py-3 xl:px-2 rounded-lg flex flex-row justify-between items-center gap-2">
+                <div className="flex items-center gap-2">
+                    <Avatar styles="rounded-full w-10" />
+                    <div className="overflow-hidden">
+                        <b className="text-slate-500">
+                            { item.name ? item.name : (item.participants?.data?.find((p) => p.id !== currentUser.id))?.username}
+                        </b>
+
+                        <p className="truncate text-sm text-gray-500 hidden xl:block">
+                            {item.messages.data.length > 0 ? 
+                                `${item.messages?.data[item.messages.data.length - 1]?.user.id == currentUser.id ? 'Toi : ' : ''}
+                                ${item.messages?.data[item.messages.data.length - 1]?.content} `
+                            : 'Aucun message'}
+                        </p>
+                    </div>
+                </div>
+                <div className="text-xs text-gray-500 hidden flex-col items-end gap-1 text-right xl:flex">
+                    {item.messages?.data[item.messages.data.length -1]?.created_at}
+                    <StarIcon className="w-4 text-gray-300" />
+                </div>
+            </Link>
+        </li>
+    )
+}
+
+function Sidebar({conversations, isSearch, setSearch})
+{
     return (
         <ul className="mt-3 xl:mt-6 flex flex-row xl:flex-col gap-3">
             {conversations.length > 0 ? <>
                 {conversations.map((conv, i) =>
                     !isSearch ?
                         conv.messages.data.length > 0 ?
-                            <li key={i} className="items-center">
-                                <Link to={`/messages/${conv.id}`} className="bg-gray-100 px-4 py-3 xl:px-2 rounded-lg flex flex-row justify-between items-center gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <Avatar styles="rounded-full w-10" />
-                                        <div className="overflow-hidden">
-                                            <b className="text-slate-500">
-                                                {(conv.participants?.data?.find((p) => p.id !== currentUser.id))?.username}
-                                            </b>
-
-                                            <p className="truncate text-sm text-gray-500 hidden xl:block">
-                                                {`${conv.messages?.data[conv.messages.data.length - 1]?.user.id == currentUser.id ? 'Toi : ' : ''}
-                                                ${conv.messages?.data[conv.messages.data.length - 1]?.content} `}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-xs text-gray-500 hidden flex-col items-end gap-1 text-right xl:flex">
-                                        {conv.messages?.data[conv.messages.data.length -1]?.created_at}
-                                        <StarIcon className="w-4 text-gray-300" />
-                                    </div>
-                                </Link>
-                            </li>
+                            <SidebarItem item={conv} isSearch={isSearch}/>
                         : null
                     :  (
-                        <li key={i} className="items-center">
-                            {conv.name}
-                        </li>
+                        <SidebarItem item={conv} isSearch={isSearch} setSearch={setSearch}/>
                     )
                 )}
             </> : null}
 
         </ul>
     )
-}
-
-function CreateConversationView()
-{
-    return <div>hello</div>
 }

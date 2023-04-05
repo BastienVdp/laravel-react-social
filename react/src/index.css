@@ -12,6 +12,7 @@
 .closed {
     opacity: 0;
 }
+
 .opened-top {
   transform: translateY(0);
   opacity: 1;
@@ -21,6 +22,17 @@
   transform: translateY(-100%);
   opacity: 0;
   transition: all 0.3s ease-in-out;
+}
+.animate-shake {
+  animation: shake .3s linear;
+}
+@keyframes shake {
+  0% { transform: translate(10px); }
+  20% { transform: translate(-10px); }
+  40% { transform: translate(5px); }
+  60% { transform: translate(-5px); }
+  80% { transform: translate(8px); }
+  100% { transform: translate(0px); }
 }
 .skeleton {
     color: transparent;

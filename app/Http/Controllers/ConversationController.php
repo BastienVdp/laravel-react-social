@@ -24,30 +24,30 @@ class ConversationController extends Controller
             new ConversationCollection(
                 Conversation::whereHas('participants', function ($query) use ($request) {
                     $query->where('user_id', $request->user()->id);
-                })->with(['participants', 'messages'])->get()
+                })->with(['participants', 'messages'])->orderBy('created_at', 'desc')->get()
             )
         );
     }
 
-    public function search(Request $request): Response|JsonResponse
+    public function search(Request $request)
     {
-        $user =  User::where('name', 'like', '%'.$request->search.'%')->first();
+        $usersId =  User::where('name', 'like', '%'.$request->search.'%')->pluck('id');
 
-        if(!$user) {
+        if(count($usersId) == 0) {
             return response([
-                'error' => 'Utilisateur introuvable'
+                'error' => 'Aucun utilisateur'
             ], 422);
         }
 
         return response()->json(
             new ConversationCollection(
                 Conversation::whereHas('participants', function ($query) use ($request) {
-                    $query->where('user_id', $request->user()->id);
-                })->whereHas('participants', function ($query) use ($user) {
-                    $query->where('user_id',
-                        $user->id
-                    );
-                })->with(['participants', 'messages'])->get()
+                        $query->where('user_id', $request->user()->id);
+                    })->whereHas('participants', function ($query) use ($usersId) {
+                        $query->whereIn('user_id',
+                            $usersId
+                        );
+                    })->with(['participants', 'messages'])->orderBy('created_at', 'desc')->get()
             )
         );
     }
