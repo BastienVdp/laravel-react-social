@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { CheckIcon, EllipsisHorizontalCircleIcon, MagnifyingGlassIcon, NoSymbolIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { StarIcon } from "@heroicons/react/24/solid"
 import Button from "../components/fondations/Button"
 import Avatar from "../components/fondations/Avatar"
@@ -16,6 +16,8 @@ export default function Messages()
     const [openCreateConversation, setOpenCreateConversation] = useState(false)
     const { loading, getConversations, conversations, search, setSearch, searchConversation, isSearch, error } = useConversations()
 
+    const [openInviewInformations, setOpenInviewInformations] = useState(false)
+
     useEffect(() => {
         const timeOutId = setTimeout(() => searchConversation(), 500);
         return () => clearTimeout(timeOutId)
@@ -26,11 +28,6 @@ export default function Messages()
     }, [])
 
     return <>
-        <div className="z-30 hidden top-0 left-0 right-0 bottom-0 bg-black/75">
-            <div className="absolute right-0 bottom-0 top-0 w-[200px] bg-white">
-                Helloooo
-            </div>
-        </div>
         <div className="h-full flex flex-col xl:flex-row gap-6 bg-gray-100 rounded-2xl p-6">
                 <div className="w-full xl:h-full xl:w-1/4 rounded-xl bg-white p-4">
                     <div className="flex gap-3 items-stretch">
@@ -48,9 +45,9 @@ export default function Messages()
                                 autoComplete={"off"}
                                 className={`placeholder:text-sm border-none outline-none w-full text-slate-600 indent-1`}
                             />
-                            
+
                         </div>
-                        
+
                         <Button level="secondary" onClick={e => setOpenCreateConversation(!openCreateConversation)}>
                             <StarIcon className="w-4 text-blue-400" />
                         </Button>
@@ -70,7 +67,11 @@ export default function Messages()
                             </div>
                         </div>
                     : id ?
-                        conversations && <InviewMessage conversation={conversations.find(conv => conv.id == id)} />
+                        conversations && <InviewMessage
+                                conversation={conversations.find(conv => conv.id == id)}
+                                setOpen={setOpenInviewInformations}
+                                open={openInviewInformations}
+                            />
                     :
                         <div className="w-full h-full grid place-items-center text-lg text-gray-500 ">
                             Cliquer sur une conversation
@@ -78,10 +79,86 @@ export default function Messages()
                     : null}
             </div>
         </div>
+        <InViewInformations
+            conversation={conversations.find(conv => conv.id == id)}
+            openInviewInformations={openInviewInformations}
+            setOpenInviewInformations={setOpenInviewInformations}
+        />
+
     </>
 }
 
-function InviewMessage({conversation}) {
+
+function InViewInformations({openInviewInformations, setOpenInviewInformations, conversation}) {
+
+    if(conversation == undefined) return null
+
+    const ref = useRef(null)
+    const { currentUser } = useStateContext()
+
+    const handleOpen = (e) => {
+        if(ref.current && !ref.current.contains(e.target)) setOpenInviewInformations(false)
+    }
+
+    return <>
+    <div onClick={(e) => handleOpen(e)} className={`z-30 ${openInviewInformations ? 'absolute opened' : 'hidden closed' } top-0 left-0 right-0 bottom-0 bg-black/75`}>
+    </div>
+            <div ref={ref} className={`z-40 ${openInviewInformations ? 'translate-x-0' : 'translate-x-full'} transition-transform ease-in absolute right-0 bottom-0 top-0 w-[85%] xl:w-1/3 bg-white rounded-tl-2xl rounded-bl-2xl p-6`}>
+                <div className="py-6 rounded-xl bg-gray-100 grid place-items-center">
+                    <Avatar  alt="" styles="rounded-full w-16" />
+                    <div className="text-center mt-4 text-slate-500">
+                        <span className="text-lg font-semibold">
+                        { conversation.name ? conversation.name : (conversation.participants?.data?.find((p) => p.id !== currentUser.id))?.username}
+                        </span>
+                        { conversation.participants.data.length > 0 && <>
+                            <span className="text-sm mb-2 block">UI designer</span>
+                            <span className="font-semibold">
+                                Connecté
+                                <div className="w-2 h-2 rounded-full bg-green-300 inline-block ml-3"></div>
+                            </span>
+                        </>}
+
+                    </div>
+                </div>
+                <div className="mt-6 rounded-xl bg-gray-100">
+                    <div className="p-4 border-b text-slate-500 font-semibold">
+                        Support
+                    </div>
+                    <ul className="p-4 flex flex-col gap-1">
+                        <li className="text-slate-500 font-medium flex items-center">
+                            <CheckIcon className="w-4 inline-block mr-2" />
+                            Marquer comme non lu
+                        </li>
+                        <li className="text-slate-500 font-medium flex items-center">
+                            <NoSymbolIcon className="w-4 inline-block mr-2" />
+                            Bloquer
+                        </li>
+                        <li className="text-slate-500 font-medium flex items-center">
+                            <TrashIcon className="w-4 inline-block mr-2" />
+                            Supprimer la conversation
+                        </li>
+                    </ul>
+                </div>
+                <div className="mt-6 rounded-xl bg-gray-100">
+                    <div className="p-4 border-b text-slate-500 font-medium">
+                        Participants
+                    </div>
+
+                    <ul className="p-4 flex flex-col gap-4">
+                        { conversation.participants.data.map((p) => (
+                            <li key={p.i}>
+                                <Link to={`/profile/${p.id}`} className="text-slate-500 font-semibold flex items-center">
+                                    <Avatar styles="w-8 rounded-full inline-block mr-4" />
+                                    {p.username == currentUser.username ? 'Moi' : p.username}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+    </>
+}
+function InviewMessage({conversation, setOpen, open}) {
 
     if(!conversation) return 'Loading..'
 
@@ -132,18 +209,21 @@ function InviewMessage({conversation}) {
 
     return <>
         <div className="h-full flex flex-col">
-            <div className="flex p-5 border-b">
+            <div className="flex justify-between items-center p-5 border-b">
                 <div className="flex items-center gap-4">
                     <Avatar styles="w-12 rounded-full"/>
                     <div className="flex flex-col">
                         <b className="text-slate-500">
                             {conversation.name ? conversation.name.toUpperCase() : (participants.filter(p => p.id !== currentUser.id))
                                 .map((participant, i) => `${participant.username}${i+1 !== participants.length -1 ? ', ' : ''}`)}
-                            {/* {console.log(conversation?.participants?.data?.filter((p) => p.id !== currentUser.id))} */}
                         </b>
                         <span className="text-xs text-gray-500">Connecté</span>
                     </div>
                 </div>
+                <EllipsisHorizontalCircleIcon
+                    className="w-6 text-gray-500 cursor-pointer"
+                    onClick={() => setOpen(true)}
+                />
             </div>
             <div className="relative h-full">
                 <div className="absolute left-0 top-0 bottom-0 right-0 flex flex-col space-y-8 p-4 overflow-y-auto pb-0">
@@ -197,7 +277,7 @@ function SidebarItem({item, isSearch, setSearch}) {
                         </b>
 
                         <p className="truncate text-sm text-gray-500 hidden xl:block">
-                            {item.messages.data.length > 0 ? 
+                            {item.messages.data.length > 0 ?
                                 `${item.messages?.data[item.messages.data.length - 1]?.user.id == currentUser.id ? 'Toi : ' : ''}
                                 ${item.messages?.data[item.messages.data.length - 1]?.content} `
                             : 'Aucun message'}
@@ -221,10 +301,10 @@ function Sidebar({conversations, isSearch, setSearch})
                 {conversations.map((conv, i) =>
                     !isSearch ?
                         conv.messages.data.length > 0 ?
-                            <SidebarItem item={conv} isSearch={isSearch}/>
+                            <SidebarItem key={i} item={conv} isSearch={isSearch}/>
                         : null
                     :  (
-                        <SidebarItem item={conv} isSearch={isSearch} setSearch={setSearch}/>
+                        <SidebarItem key={i} item={conv} isSearch={isSearch} setSearch={setSearch}/>
                     )
                 )}
             </> : null}
