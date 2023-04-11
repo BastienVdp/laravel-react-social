@@ -9,51 +9,73 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Actions\Message\StoreMessageAction;
-use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\Message\MessageResource;
+use App\Interfaces\ConversationRepositoryInterface;
+use App\Actions\Conversation\DeleteAllMessagesAction;
+use App\Http\Resources\Conversation\ConversationResource;
 use App\Http\Resources\Conversation\ConversationCollection;
 
 class ConversationController extends Controller
 {
+    public function __construct(private ConversationRepositoryInterface $conversationRepository)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    public function index(Request $request): JsonResponse
     {
         return response()->json(
             new ConversationCollection(
-                Conversation::whereHas('participants', function ($query) use ($request) {
-                    $query->where('user_id', $request->user()->id);
-                })->with(['participants', 'messages'])->orderBy('created_at', 'desc')->get()
+                $this->conversationRepository
+                    ->getAllConversationsForUser($request->user()->id)
             )
         );
     }
 
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
-        $usersId =  User::where('name', 'like', '%'.$request->search.'%')->pluck('id');
+        $usersId = User::where('name', 'like', '%' . $request->search . '%')->pluck('id');
 
-        if(count($usersId) == 0) {
-            return response([
-                'error' => 'Aucun utilisateur'
-            ], 422);
+        if($usersId->isEmpty()) {
+            return response()->json(['error' => 'Aucun utilisateur'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return response()->json(
             new ConversationCollection(
-                Conversation::whereHas('participants', function ($query) use ($request) {
-                        $query->where('user_id', $request->user()->id);
-                    })->whereHas('participants', function ($query) use ($usersId) {
-                        $query->whereIn('user_id',
-                            $usersId
-                        );
-                    })->with(['participants', 'messages'])->orderBy('created_at', 'desc')->get()
+                $this->conversationRepository
+                    ->getConversationsByParticipants($usersId)
             )
         );
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+
+    public function show(Request $request): JsonResponse
+    {
+        return response()->json(
+            new ConversationResource(
+                $this->conversationRepository
+                    ->getConversationById($request->id)
+            )
+        );
+    }
+
+    public function unread(Request $request): JsonResponse
+    {
+        $this->conversationRepository
+            ->markLastMessageAsUnread($request->conversation_id, $request->user()->id);
+
+        return response()->json('ok');
+    }
+
+    public function read(Request $request): JsonResponse
+    {
+        $this->conversationRepository
+            ->markLastMessageAsRead($request->conversation_id, $request->user()->id);
+
+        return response()->json('ok');
+    }
+
     public function send(Request $request): void
     {
         $message = (new StoreMessageAction)->execute($request);
@@ -61,31 +83,23 @@ class ConversationController extends Controller
         event(new MessageEvent(
             $request->user()->id,
             $request->conversation_id,
-            new MessageResource($message))
+            new MessageResource($message),
+            new ConversationCollection(
+                $this->conversationRepository
+                    ->getAllConversationsForUser($request->user()->id)
+            )
+        ));
+    }
+
+    public function delete(Request $request)
+    {
+        (new DeleteAllMessagesAction)->execute($request->id);
+
+        return response()->json(
+            new ConversationResource(
+                $this->conversationRepository
+                    ->getConversationById($request->id)
+            )
         );
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

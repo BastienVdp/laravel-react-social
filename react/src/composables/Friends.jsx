@@ -68,10 +68,10 @@ export default function useFriends()
             sender: currentUser.id,
             recipient: id
         })
-        .then(({data}) => {
-            console.log(data)
-            setFriends(data.friends.data)
-            setFriendsBlocked(data.blocked_requests.data)
+        .then((res) => {
+            console.log(res)
+            // setFriends(data.friends.data)
+            // setFriendsBlocked(data.blocked_requests.data)
             toast.success('Vous avez bloqué cet ami.')
         })
         .catch(err => console.log(err))

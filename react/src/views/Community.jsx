@@ -16,8 +16,13 @@ export default function Community() {
 
     return (
         <div className="bg-gray-100 rounded-lg p-6">
-            <CommunityBar handleTab={handleTab} activeTab={activeTab}/>
-            <CommunityList activeTab={activeTab} />
+            <CommunityBar 
+                handleTab={handleTab} 
+                activeTab={activeTab}
+            />
+            <CommunityList 
+                activeTab={activeTab} 
+            />
         </div>
     )
 }
@@ -74,9 +79,20 @@ function CommunityList({ activeTab}) {
 
     if(loading) return <CommunityListSkeleton />
     return <>
-        {activeTab == 0 && <FriendList friends={friends} unfriend={unfriend} block={blockfriend}/>}
-        {activeTab == 1 && <FriendRequestList friendsRequest={friendsRequest} acceptFriendRequest={acceptFriendRequest} denyFriendRequest={denyFriendRequest}/>}
-        {activeTab == 2 && <FriendBlocked friendsBlocked={friendsBlocked} unblockfriend={unblockfriend}/>}
+        {activeTab == 0 && <FriendList 
+            friends={friends}  
+            unfriend={unfriend}
+            block={blockfriend}
+        />}
+        {activeTab == 1 && <FriendRequestList 
+            friendsRequest={friendsRequest} 
+            acceptFriendRequest={acceptFriendRequest} 
+            denyFriendRequest={denyFriendRequest}
+        />}
+        {activeTab == 2 && <FriendBlocked 
+            friendsBlocked={friendsBlocked} 
+            unblockfriend={unblockfriend}
+        />}
     </>
 }
 function FriendBlocked({friendsBlocked, unblockfriend}) {
@@ -176,7 +192,7 @@ function Item({item, unfriend, block}) {
                     Supprimer
                     </button>
                 }
-                callback2={ <button className="bg-slate-200 rounded-lg w-full py-1 text-slate-500" onClick={e => block(item.id)}>
+                callback2={<button className="bg-slate-200 rounded-lg w-full py-1 text-slate-500" onClick={e => block(item.id)}>
                 Bloquer
                 </button>}
             />

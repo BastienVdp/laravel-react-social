@@ -20,6 +20,7 @@ class MessageResource extends JsonResource
         return [
             'id' => $this->id,
             'content' => $this->content,
+            'read' => $this->read,
             'user' => new UserResource(User::find($this->user_id)),
             'created_at' => $this->created_at->diffForHumans()
         ];

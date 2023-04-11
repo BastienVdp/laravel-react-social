@@ -8,6 +8,7 @@ import Messages from "./views/Messages";
 import Notifications from "./views/Notifications";
 import Profile from "./views/Profile";
 import Register from "./views/Register";
+import InviewMessage from "./components/InviewMessage";
 
 const router = createBrowserRouter([
     {
@@ -30,8 +31,14 @@ const router = createBrowserRouter([
                 element: <Community />
             },
             {
-                path: '/messages/:id?',
+                path: '/messages',
                 element: <Messages />,
+                children: [
+                    {
+                        path: '/messages/:id',
+                        element: <InviewMessage />
+                    }
+                ]
             },
 
         ]

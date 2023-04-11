@@ -20,18 +20,13 @@ class ConversationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Message::where('conversation_id', '=', $this->id)
-        //                         ->orderBy('created_at', 'DESC')
-        //                         ->get()
-        //                         ->unique('conversation_id')
-        //                         ->values()
-        //                         ->take(1)
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'last_message' => new MessageResource($this->whenLoaded('last_message')),
+            'latestMessage' => new MessageResource($this->whenLoaded('latestMessage')),
             'messages' => new MessageCollection($this->whenLoaded('messages')),
-            'participants' => new UserCollection($this->whenLoaded('participants'))
+            'participants' => new UserCollection($this->whenLoaded('participants')),
+            'messages_count' => $this->messages->count(),
         ];
     }
 }

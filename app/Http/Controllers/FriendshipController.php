@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Conversation;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Resources\User\UserCollection;
 use App\Responses\User\UserCollectionResponse;
 use App\Actions\Friendship\DenyFriendshipAction;
@@ -15,7 +17,6 @@ use App\Actions\Friendship\UnblockFriendshipAction;
 use App\Responses\Friendship\FriendshipHandleResponse;
 use App\Http\Resources\Friendship\FriendshipCollection;
 use App\Responses\Friendship\FriendshipCollectionResponse;
-use Illuminate\Http\JsonResponse;
 
 class FriendshipController extends Controller
 {
@@ -139,13 +140,12 @@ class FriendshipController extends Controller
         );
     }
 
-    public function block(Request $request): FriendshipHandleResponse
+    public function block(Request $request)
     {
         (new BlockFriendshipAction())->execute(
             $request->sender,
             $request->recipient
         );
-
         return new FriendshipHandleResponse(
             new UserCollection(
                 User::find($request->sender)->getFriends()

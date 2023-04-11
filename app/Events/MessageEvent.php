@@ -24,7 +24,8 @@ class MessageEvent implements ShouldBroadcast
     public function __construct(
         public int $user_id,
         public int $conversation_id,
-        public MessageResource $message
+        public MessageResource $message,
+        public ConversationCollection $conversations
     )
     {
         
